@@ -18,6 +18,9 @@ import java.util.Map;
  * only listed in Settings, next to the buttons that change them.
  */
 public class HelpView extends Page {
+    private static final String EXAMPLE_LIBRARY =
+            "https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip";
+
     /**
      * JavaFX's launcher rather than AWT Desktop.browse(): on Linux, AWT's GTK
      * init clashes with JavaFX's ("XSetErrorHandler() called with a GDK error
@@ -34,8 +37,7 @@ public class HelpView extends Page {
         // Each section gets as many columns as it has rows of equal-length topics, so nothing hangs alone under a row.
         setScrollingBody(false,
                 section("Getting started", 3,
-                        topic("1. Import", "Pick a folder or files on the Import page. Gesturtle copies them into "
-                                + "your library, so the originals can stay where they are."),
+                        buildImportTopic(),
                         topic("2. Tag", "Select images in the Gallery and tag them by subject, pose, or anything else "
                                 + "you'll want to practice from later."),
                         topic("3. Practice", "Choose images by tag on the Practice page, set a timer, and start. Save "
@@ -76,6 +78,19 @@ public class HelpView extends Page {
     /** A main section: its subsections in up to {@code columns} columns, fewer when the window is narrow. */
     private Card section(String heading, int columns, javafx.scene.Node... topics) {
         return new Card(heading).add(new ColumnFlow(340, columns, topics).gaps(32, 20));
+    }
+
+    /**
+     * The first step, plus the example library for trying the app before
+     * gathering images of your own. It's an export archive, so it goes in
+     * through Settings rather than the Import page.
+     */
+    private VBox buildImportTopic() {
+        VBox box = topic("1. Import", "Pick a folder or files on the Import page. Gesturtle copies them into "
+                + "your library, so the originals can stay where they are. Want to see the app in action first? "
+                + "Download the example library and open it in Settings › Backup.");
+        box.getChildren().add(hyperlinkTo("Download the example library", EXAMPLE_LIBRARY));
+        return box;
     }
 
     /** Places to gather references from, for building a collection of your own. */

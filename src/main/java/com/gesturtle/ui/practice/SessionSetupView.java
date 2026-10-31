@@ -339,6 +339,7 @@ public class SessionSetupView extends Page {
                         viewChoice.getSelectionModel().select(0);
                     }
                     updateViewMatchCount();
+                    renderQueueList();
                 },
                 err -> Dialogs.error("Could not load views", err.getMessage()));
     }
@@ -559,6 +560,8 @@ public class SessionSetupView extends Page {
                     } else if (!playlistChoice.getItems().isEmpty()) {
                         playlistChoice.getSelectionModel().select(0);
                     }
+                    // Queued segments drawn before the list arrived say "playlist #id"; now they can have names.
+                    renderQueueList();
                 },
                 err -> Dialogs.error("Could not load playlists", err.getMessage()));
     }

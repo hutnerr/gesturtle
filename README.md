@@ -81,6 +81,9 @@ from source runs silently. To hear them, get the free
 `src/main/resources/sounds/` as `minimal-click.wav`, `minimal-confirm.wav`, `minimal-cancel.wav`,
 `minimal-error.wav`, and `minimal-success.wav`.
 
+Want to see the app in action first? The [example library](https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip) has 167 tagged public domain artworks, with
+playlists, saved views, and presets ready to go. Open **Settings › Backup › Import archive…** and pick its zip.
+
 On first launch, pick (or create) a folder for your library, then:
 
 1. **Import** a few images or a whole folder. Add batch tags as you go.
@@ -160,9 +163,10 @@ any file it can't read, and picks it up once you fix it.
 - Color palette: [Gruvbox](https://github.com/morhetz/gruvbox) by Pavel Pertsev (morhetz), MIT
 - Typeface: [Inter](https://rsms.me/inter/) by Rasmus Andersson, SIL Open Font License
 - Icons: [SVG Repo](https://www.svgrepo.com), [Lucide](https://lucide.dev) (ISC), [Material Icons](https://fonts.google.com/icons) by Google (Apache 2.0), and 16pxls by Paul Mackenzie (CC BY-SA 4.0)
-- Screenshot artwork: public domain works by Rembrandt, Vermeer, Rubens, Van Gogh, Sargent, Leonardo da Vinci,
-  Degas, Dürer, Hokusai, Hiroshige, Monet, Audubon, Haeckel, Muybridge, and Steinlen, via
-  [Wikimedia Commons](https://commons.wikimedia.org)
+- Screenshot artwork and the example library: public domain works by Degas, Seurat, Sargent, Rubens, Watteau,
+  Redon, Romney, Hokusai, Hiroshige, Audubon (engraved by Robert Havell), Atget, and others, from the open access
+  collections of [The Metropolitan Museum of Art](https://www.metmuseum.org/about-the-met/policies-and-documents/open-access)
+  and [The Art Institute of Chicago](https://www.artic.edu/open-access/open-access-images) (CC0)
 
 ## License
 
