@@ -1,0 +1,11 @@
+UI SFX Vol.1 - Lite (free sampler), theme "01_Minimal"
+by inaruna3565 - https://inaruna3565.itch.io/ui-sfx-vol-1-lite
+
+The minimal-*.wav files in this folder are from this pack, renamed but otherwise
+unmodified. Gesturtle mixes them to mono and trims their trailing silence in
+memory when it plays them.
+
+From the pack's license: royalty-free; may be used in personal and commercial
+projects and shipped inside a compiled or packaged product with no
+attribution required. The sound files themselves may not be resold,
+redistributed or given away, as-is, renamed, converted, or edited.

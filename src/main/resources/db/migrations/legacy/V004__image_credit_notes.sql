@@ -1,0 +1,2 @@
+ALTER TABLE image ADD COLUMN credit TEXT;
+ALTER TABLE image ADD COLUMN notes TEXT;

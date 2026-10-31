@@ -1,0 +1,1619 @@
+/*
+ * Base stylesheet: structure, spacing, typography, and the full light
+ * palette, expressed as looked-up color tokens on .root. style-dark.css
+ * redefines only the token block to repaint everything for dark mode.
+ *
+ * Rules are grouped by component (see com.gesturtle.ui.components): Page,
+ * Card, FormRow, AppButton, SegmentedControl, Toolbar, Chip, EmptyState,
+ * ImageTile. Screens should compose those rather than add one-off rules here.
+ *
+ * Palette is gruvbox (light variant) with the yellow as accent.
+ */
+
+.root {
+    -bg-app:             #f2e5bc;
+    -bg-surface:         #f9f5d7;
+    -bg-surface-alt:      #ebdbb2;
+    -bg-surface-hover:    #f2e5bc;
+    /* The chosen option in a segmented control; must read as raised above its -bg-surface-alt track. */
+    -segment-selected-bg: #f9f5d7;
+    -border-subtle:       #e6d7ae;
+    -border-strong:       #d5c4a1;
+    -text-primary:        #3c3836;
+    -text-secondary:      #665c54;
+    -text-tertiary:       #7c6f64;
+    -accent:              #d79921;
+    -accent-hover:        #c98c17;
+    -accent-pressed:      #a86e10;
+    -accent-soft:         #f6e6b4;
+    -accent-soft-border:  #e5c97f;
+    -accent-contrast:     #282828;
+    /* Accent as a foreground (selected icons): darker than -accent so it reads on cream. */
+    -accent-text:         #b57614;
+    -danger:              #9d0006;
+    -danger-hover:        #7f0005;
+    -danger-soft:         #f8e0c8;
+    -danger-soft-border:  #ebb9a6;
+    -warning:             #af3a03;
+    -nav-bg:              #ebdbb2;
+    -nav-text:            #665c54;
+    -nav-text-selected:   #3c3836;
+    -nav-hover-bg:        #e2d1a4;
+    -nav-selected-bg:     #f9f5d7;
+    -image-area-bg:       #282828;
+    -overlay-bg:          rgba(40,40,40,0.75);
+    /* Overlays sit on a dark scrim in both themes, so they keep light text and the bright yellow. */
+    -overlay-text:        #fbf1c7;
+    -overlay-favorite:    #fabd2f;
+    /* Tag colors: gruvbox's faded hues, dark enough to read as text on cream. */
+    -tag-red:             #9d0006;
+    -tag-orange:          #af3a03;
+    -tag-yellow:          #b57614;
+    -tag-green:           #79740e;
+    -tag-aqua:            #427b58;
+    -tag-blue:            #076678;
+    -tag-purple:          #8f3f71;
+    -tag-gray:            #7c6f64;
+
+    -fx-font-family: "Inter", "Segoe UI", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 16px;
+    -fx-text-fill: -text-primary;
+    -fx-background-color: -bg-app;
+    -fx-focus-color: -accent;
+    -fx-faint-focus-color: transparent;
+    -fx-accent: -accent;
+}
+
+.shell {
+    -fx-background-color: -bg-app;
+}
+
+/* ---------- Window chrome ---------- */
+
+.window-chrome {
+    -fx-background-color: -bg-app;
+}
+
+.window-titlebar {
+    -fx-background-color: -nav-bg;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-border-width: 1;
+    -fx-padding: 0 8 0 14;
+    -fx-min-height: 40px;
+    -fx-pref-height: 40px;
+    -fx-cursor: default;
+}
+
+.window-titlebar .btn-icon {
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-pref-width: 30px;
+    -fx-pref-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-background-radius: 6px;
+}
+
+/* ---------- Typography ---------- */
+
+.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 16px;
+}
+
+.hint-label {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 14px;
+}
+
+.muted-label {
+    -fx-text-fill: -text-secondary;
+}
+
+.section-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+}
+
+.body-text {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 15px;
+    -fx-line-spacing: 3px;
+}
+
+/* body-text for a TextFlow, so links can sit inline in a sentence. */
+.body-text-flow {
+    -fx-line-spacing: 3px;
+}
+
+.body-text-flow > .body-text-part {
+    -fx-fill: -text-secondary;
+    -fx-font-size: 15px;
+}
+
+.body-text-flow > .hyperlink {
+    -fx-padding: 0;
+}
+
+/* ---------- Page ---------- */
+
+.page {
+    -fx-background-color: -bg-app;
+}
+
+.page-title {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.page-subtitle {
+    -fx-font-size: 15px;
+    -fx-text-fill: -text-secondary;
+}
+
+.page-scroll, .page-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+/* ---------- Card ---------- */
+
+.card {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+}
+
+.card-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+}
+
+.card-description {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-secondary;
+}
+
+.card-interactive {
+    -fx-cursor: hand;
+}
+
+.card-interactive:hover {
+    -fx-border-color: -border-strong;
+}
+
+.card-accent {
+    -fx-background-color: -accent-soft;
+    -fx-border-color: -accent-soft-border;
+}
+
+/* Lists/trees/tables inside a flush card draw on the card's own surface. */
+.card-flush .list-view, .card-flush .tree-view {
+    -fx-background-color: transparent;
+}
+
+.card-flush .list-view, .card-flush .tree-view, .card-flush .table-view {
+    -fx-background-radius: 14;
+    -fx-border-width: 0;
+    -fx-padding: 6;
+}
+
+/* ---------- FormRow ---------- */
+
+.form-label {
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: 500;
+}
+
+/* ---------- Navigation ---------- */
+
+.nav {
+    -fx-background-color: -nav-bg;
+    -fx-border-color: transparent -border-subtle transparent transparent;
+    -fx-border-width: 0 1 0 0;
+    -fx-min-width: 248px;
+    -fx-pref-width: 248px;
+}
+
+.nav-title {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.nav-section-label {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 0 16 6 16;
+}
+
+.nav .nav-item {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-text-fill: -nav-text;
+    -fx-border-width: 0;
+    -fx-background-radius: 10;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12 16 12 16;
+    -fx-font-size: 16px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-effect: null;
+}
+
+.nav .nav-item:hover {
+    -fx-background-color: -nav-hover-bg;
+    -fx-text-fill: -nav-text-selected;
+}
+
+.nav .nav-item:selected,
+.nav .nav-item:selected:hover {
+    /* The background is the sliding .nav-indicator behind the buttons. */
+    -fx-background-color: transparent;
+    -fx-text-fill: -nav-text-selected;
+    -fx-font-weight: 600;
+}
+
+.nav-indicator {
+    -fx-background-color: -nav-selected-bg;
+    -fx-background-radius: 10;
+}
+
+/* ---------- Icons ----------
+   Icon paths carry the "icon-shape" class; their fill comes from the theme
+   tokens here, never from the SVG files. */
+
+.icon-shape {
+    -fx-fill: -text-secondary;
+}
+
+/* Line-drawn icons (e.g. maximize): same colors as -fx-stroke, never filled. */
+.icon-line {
+    -fx-fill: transparent;
+    -fx-stroke: -text-secondary;
+}
+
+.btn:hover .icon-shape {
+    -fx-fill: -text-primary;
+}
+
+.btn:hover .icon-line {
+    -fx-stroke: -text-primary;
+}
+
+.btn-primary .icon-shape,
+.btn-primary:hover .icon-shape {
+    -fx-fill: -accent-contrast;
+}
+
+.btn-primary .icon-line,
+.btn-primary:hover .icon-line {
+    -fx-stroke: -accent-contrast;
+}
+
+.btn:disabled .icon-shape {
+    -fx-fill: -text-tertiary;
+}
+
+.btn:disabled .icon-line {
+    -fx-stroke: -text-tertiary;
+}
+
+.toggle-button:selected .icon-shape {
+    -fx-fill: -accent-text;
+}
+
+.toggle-button:selected .icon-line {
+    -fx-stroke: -accent-text;
+}
+
+.btn-danger .icon-shape,
+.btn-ghost-danger .icon-shape {
+    -fx-fill: -danger;
+}
+
+.segmented .segment:hover .icon-shape,
+.segmented .segment:selected .icon-shape {
+    -fx-fill: -text-primary;
+}
+
+/* A selected segment is shown by its raised background, not the accent. */
+.segmented .segment:selected .icon-line {
+    -fx-stroke: -text-primary;
+}
+
+.chip-remove .icon-shape {
+    -fx-fill: -accent-pressed;
+}
+
+.chip-neutral .chip-remove .icon-shape {
+    -fx-fill: -text-secondary;
+}
+
+.tile-remove-button .icon-shape,
+.stage-pill .icon-shape {
+    -fx-fill: -overlay-text;
+}
+
+.stage-pill {
+    -fx-graphic-text-gap: 10;
+}
+
+.hud-timer .icon-shape {
+    -fx-fill: -text-tertiary;
+}
+
+/* Leaves room for the search icon overlaid on the left (FilterBar). */
+.text-field.search-field {
+    -fx-padding: 9 14 9 38;
+}
+
+.nav .nav-item {
+    -fx-graphic-text-gap: 14;
+}
+
+.nav .nav-item .icon-shape {
+    -fx-fill: -nav-text;
+}
+
+.nav .nav-item:hover .icon-shape {
+    -fx-fill: -nav-text-selected;
+}
+
+.nav .nav-item:selected .icon-shape {
+    -fx-fill: -accent-text;
+}
+
+.favorite-toggle {
+    -fx-graphic-text-gap: 8;
+}
+
+.image-tile-badge .icon-shape {
+    -fx-fill: -overlay-text;
+}
+
+.image-tile-badge.on .icon-shape {
+    -fx-fill: -overlay-favorite;
+}
+
+/* The import list's star on files to be imported as favorites. */
+.staged-favorite .icon-shape {
+    -fx-fill: -overlay-favorite;
+}
+
+/* Hidden until the tile is hovered, unless it's already a favorite (or the
+   screen always shows it, like the session review). */
+.tile-favorite {
+    -fx-cursor: hand;
+    -fx-opacity: 0;
+}
+
+.image-tile:hover .tile-favorite,
+.tile-favorite.on,
+.tile-favorite.always-shown {
+    -fx-opacity: 1;
+}
+
+/* ---------- AppButton ---------- */
+
+/* Base .button doubles as AppButton SECONDARY, so dialog buttons and any
+   plain Button stay on-system. */
+.button, .toggle-button {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 10 20 10 20;
+    -fx-min-height: 44px;
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+}
+
+.button:hover, .toggle-button:hover {
+    -fx-background-color: -bg-surface-hover;
+}
+
+.button:pressed, .button:armed,
+.toggle-button:pressed, .toggle-button:armed {
+    -fx-background-color: -bg-surface-alt;
+}
+
+.button:focus-visible, .toggle-button:focus-visible {
+    -fx-border-color: -accent;
+}
+
+.button:disabled, .toggle-button:disabled {
+    -fx-opacity: 0.45;
+}
+
+.toggle-button:selected {
+    -fx-background-color: -accent-soft;
+    -fx-border-color: -accent-soft-border;
+    -fx-text-fill: -accent-pressed;
+}
+
+.btn-primary, .dialog-pane .button:default {
+    -fx-background-color: -accent;
+    -fx-border-color: -accent;
+    -fx-text-fill: -accent-contrast;
+    -fx-font-weight: 600;
+    /* JavaFX registers Inter SemiBold as its own family and never picks it for weight 600, so name it outright. */
+    -fx-font-family: "Inter SemiBold", "Inter", "Segoe UI", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+}
+
+.btn-primary:hover, .dialog-pane .button:default:hover {
+    -fx-background-color: -accent-hover;
+    -fx-border-color: -accent-hover;
+}
+
+.btn-primary:pressed, .btn-primary:armed {
+    -fx-background-color: -accent-pressed;
+    -fx-border-color: -accent-pressed;
+}
+
+.btn-primary:focus-visible {
+    -fx-border-color: -accent-pressed;
+}
+
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -text-secondary;
+    -fx-effect: null;
+}
+
+.btn-ghost:hover {
+    -fx-background-color: -bg-surface-hover;
+    -fx-text-fill: -text-primary;
+}
+
+.btn-ghost:pressed, .btn-ghost:armed {
+    -fx-background-color: -bg-surface-alt;
+}
+
+.toggle-button.btn-ghost:selected {
+    -fx-background-color: -accent-soft;
+    -fx-border-color: transparent;
+    -fx-text-fill: -accent-pressed;
+}
+
+.btn-danger {
+    -fx-background-color: -bg-surface;
+    -fx-text-fill: -danger;
+    -fx-border-color: -danger-soft-border;
+}
+
+.btn-danger:hover {
+    -fx-background-color: -danger-soft;
+    -fx-border-color: -danger-soft-border;
+}
+
+.btn-sm {
+    -fx-padding: 7 14 7 14;
+    -fx-min-height: 38px;
+    -fx-font-size: 15px;
+    -fx-background-radius: 9;
+    -fx-border-radius: 9;
+}
+
+.btn-icon {
+    -fx-padding: 0;
+    -fx-min-width: 38px;
+    -fx-min-height: 38px;
+    -fx-pref-width: 38px;
+    -fx-pref-height: 38px;
+    -fx-max-width: 38px;
+    -fx-max-height: 38px;
+    -fx-font-size: 15px;
+    -fx-alignment: CENTER;
+}
+
+/* ---------- SegmentedControl ---------- */
+
+.segmented {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-radius: 11;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 11;
+    -fx-border-width: 1;
+    -fx-padding: 3;
+    -fx-spacing: 2;
+}
+
+.segmented.segmented-bare {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0;
+    -fx-spacing: 4;
+}
+
+.segmented .segment {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-padding: 7 18 7 18;
+    -fx-min-height: 36px;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-effect: null;
+}
+
+.segmented .segment:hover {
+    -fx-text-fill: -text-primary;
+    -fx-background-color: -bg-surface-hover;
+}
+
+.segmented .segment:selected,
+.segmented .segment:selected:hover {
+    /* The background is the sliding .segment-indicator behind the options. */
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-font-weight: 600;
+}
+
+/* Icon-only option: square-ish, the tooltip names it. */
+.segmented .segment.segment-icon {
+    -fx-padding: 7 11 7 11;
+}
+
+.segment-indicator {
+    -fx-background-color: -segment-selected-bg;
+    -fx-border-color: -border-subtle;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+}
+
+/* ---------- Toolbar ---------- */
+
+.app-toolbar {
+    -fx-background-color: -bg-surface;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.app-toolbar-plain {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.app-toolbar.bottom {
+    -fx-border-color: -border-subtle transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.toolbar-divider {
+    -fx-background-color: -border-subtle;
+    -fx-min-width: 1px;
+    -fx-pref-width: 1px;
+    -fx-max-width: 1px;
+    -fx-pref-height: 24px;
+    -fx-max-height: 24px;
+}
+
+/* ---------- Form controls ---------- */
+
+.text-field, .text-area, .combo-box, .choice-box, .date-picker {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-padding: 9 14 9 14;
+    -fx-min-height: 44px;
+    -fx-font-size: 15px;
+    -fx-prompt-text-fill: -text-tertiary;
+    -fx-highlight-fill: -accent-soft-border;
+    -fx-highlight-text-fill: -text-primary;
+}
+
+.choice-box, .combo-box {
+    -fx-padding: 6 10 6 12;
+    -fx-cursor: hand;
+}
+
+.choice-box > .open-button {
+    -fx-padding: 0 2 0 14;
+}
+
+.choice-box:hover, .combo-box:hover {
+    -fx-background-color: -bg-surface-hover;
+}
+
+.text-area .content {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 10;
+}
+
+.text-field:focused, .text-area:focused, .combo-box:focused, .choice-box:focused {
+    -fx-border-color: -accent;
+}
+
+.choice-box > .open-button > .arrow, .combo-box > .arrow-button > .arrow {
+    -fx-background-color: -text-secondary;
+}
+
+.combo-box > .arrow-button {
+    -fx-background-color: transparent;
+}
+
+.combo-box .list-cell, .choice-box > .label {
+    -fx-text-fill: -text-primary;
+    -fx-background-color: transparent;
+    -fx-padding: 2 6 2 2;
+}
+
+.combo-box-popup .list-view, .context-menu {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-border-color: -border-subtle;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 5;
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 8 12 8 12;
+    -fx-background-radius: 7;
+}
+
+.combo-box-popup .list-view .list-cell:filled:hover,
+.combo-box-popup .list-view .list-cell:filled:selected {
+    -fx-background-color: -bg-surface-hover;
+    -fx-text-fill: -text-primary;
+}
+
+.menu-item {
+    -fx-padding: 8 14 8 14;
+    -fx-background-radius: 7;
+}
+
+.menu-item .label {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+}
+
+.menu-item:focused, .menu-item:hover {
+    -fx-background-color: -bg-surface-hover;
+}
+
+.menu-item:focused .label, .menu-item:hover .label {
+    -fx-text-fill: -text-primary;
+}
+
+.radio-menu-item:checked .label {
+    -fx-font-weight: 600;
+}
+
+.radio-menu-item:checked > .left-container > .radio {
+    -fx-background-color: -accent;
+}
+
+.check-menu-item:checked > .left-container > .check {
+    -fx-background-color: -accent;
+}
+
+.check-box, .radio-button {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+    -fx-cursor: hand;
+    -fx-label-padding: 0 0 0 10;
+}
+
+.check-box .box {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 4;
+}
+
+.check-box:hover .box {
+    -fx-border-color: -text-tertiary;
+}
+
+.check-box:selected .box {
+    -fx-background-color: -accent;
+    -fx-border-color: -accent;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: -accent-contrast;
+}
+
+.check-box:focus-visible .box {
+    -fx-border-color: -accent;
+}
+
+.radio-button .radio {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1.5;
+    -fx-border-radius: 100;
+    -fx-background-radius: 100;
+    -fx-padding: 5;
+}
+
+.radio-button:selected .radio .dot {
+    -fx-background-color: -accent;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.radio-button:selected .radio {
+    -fx-border-color: -accent;
+}
+
+.hyperlink {
+    -fx-text-fill: -accent;
+    -fx-border-color: transparent;
+    -fx-underline: false;
+    -fx-padding: 2 0 2 0;
+    -fx-font-size: 15px;
+}
+
+.hyperlink:hover, .hyperlink:visited:hover {
+    -fx-text-fill: -accent-hover;
+    -fx-underline: true;
+}
+
+.hyperlink:visited {
+    -fx-text-fill: -accent;
+}
+
+.progress-bar > .track {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: -accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-padding: 4;
+}
+
+.separator *.line {
+    -fx-border-color: -border-subtle;
+}
+
+.tooltip {
+    /* JavaFX waits a full second by default, which feels sluggish for icon buttons. */
+    -fx-show-delay: 300ms;
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 8;
+    -fx-text-fill: -overlay-text;
+    -fx-font-size: 14px;
+    -fx-padding: 6 10 6 10;
+    -fx-effect: null;
+}
+
+/* ---------- Lists / Tables / Trees ---------- */
+
+.list-view, .tree-view, .scroll-pane, .scroll-pane > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-border-color: transparent;
+}
+
+.list-view, .tree-view {
+    -fx-padding: 0;
+}
+
+.list-view .list-cell, .tree-view .tree-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -text-primary;
+    -fx-padding: 10 14 10 14;
+    -fx-background-radius: 8;
+    -fx-font-size: 15px;
+}
+
+.list-view .list-cell:filled:hover, .tree-view .tree-cell:filled:hover {
+    -fx-background-color: -bg-surface-hover;
+}
+
+.list-view .list-cell:filled:selected, .tree-view .tree-cell:filled:selected {
+    -fx-background-color: -accent-soft;
+    -fx-text-fill: -accent-pressed;
+}
+
+.tree-cell > .tree-disclosure-node > .arrow {
+    -fx-background-color: -text-tertiary;
+}
+
+.tree-cell > .tree-disclosure-node {
+    -fx-padding: 6 8 6 4;
+}
+
+/* Tag tree: the cell draws its own indent, guide lines, and chevron
+   (TagManagerView.TagTreeCell), so the built-in ones are switched off. */
+.tag-tree .tree-cell {
+    -fx-indent: 0;
+    -fx-padding: 0 14 0 10;
+}
+
+/* Hidden; the cell draws its own chevron and pins its row to the left edge. */
+.tag-tree .tree-cell > .tree-disclosure-node,
+.tag-tree .tree-cell > .tree-disclosure-node > .arrow {
+    -fx-padding: 0;
+    -fx-background-color: transparent;
+}
+
+.tree-guide {
+    -fx-stroke: -border-strong;
+    -fx-stroke-width: 1;
+}
+
+.tree-leaf-dot {
+    -fx-fill: -border-strong;
+}
+
+.tree-chevron {
+    -fx-fill: transparent;
+    -fx-stroke: -text-tertiary;
+    -fx-stroke-width: 1.6;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+}
+
+.tree-chevron-hit {
+    -fx-cursor: hand;
+}
+
+.tree-chevron-hit:hover .tree-chevron {
+    -fx-stroke: -text-primary;
+}
+
+.tree-cell:filled:selected .tree-tag-name {
+    -fx-text-fill: -accent-pressed;
+}
+
+/* A group-only tag in the tag picker: a heading over its children, not something to check. */
+.tree-tag-group {
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: 600;
+}
+
+.tile-grid-scroll,
+.tile-grid-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.table-view {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-border-color: -border-subtle;
+    -fx-border-width: 1;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-padding: 0;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 14 14 0 0;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.table-view .column-header, .table-view .filler {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-size: 44px;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 0 12 0 12;
+}
+
+.table-view .placeholder .label {
+    -fx-text-fill: -text-tertiary;
+}
+
+.table-row-cell {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 0;
+    -fx-text-fill: -text-primary;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-table-cell-border-color: transparent;
+    -fx-cell-size: 48px;
+}
+
+/* The filler rows a table draws below its last item shouldn't look like rows. */
+.table-row-cell:empty {
+    -fx-border-color: transparent;
+}
+
+.table-row-cell:filled:hover {
+    -fx-background-color: -bg-surface-hover;
+}
+
+.table-row-cell:filled:selected {
+    -fx-background-color: -accent-soft;
+}
+
+/* On the cell, not its .text: a .text color is a JavaFX override of the cell's text fill that resets to
+   black (not back to the cell's own color) once the row is deselected. */
+.table-row-cell:filled:selected .table-cell {
+    -fx-text-fill: -accent-pressed;
+}
+
+.table-cell {
+    -fx-text-fill: -text-primary;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 6 12 6 12;
+    -fx-font-size: 15px;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+/* An explicit thickness: the arrows below are zeroed out, and a ListView/TableView's bar takes its width from
+   them, so without this it collapsed to a 1px sliver (ScrollPanes happened to size theirs differently). */
+.scroll-bar:vertical {
+    -fx-pref-width: 12;
+    -fx-min-width: 12;
+}
+
+.scroll-bar:horizontal {
+    -fx-pref-height: 12;
+    -fx-min-height: 12;
+}
+
+.scroll-bar .track, .scroll-bar .track-background {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -border-strong;
+    -fx-background-radius: 99;
+    -fx-background-insets: 2;
+}
+
+/* A long list (the Gallery at thousands of images) would otherwise shrink the thumb to a dot. */
+.scroll-bar:vertical .thumb {
+    -fx-min-height: 48px;
+}
+
+.scroll-bar:horizontal .thumb {
+    -fx-min-width: 48px;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -text-tertiary;
+}
+
+.scroll-bar .increment-button, .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.scroll-bar .increment-arrow, .scroll-bar .decrement-arrow {
+    -fx-padding: 0;
+    -fx-shape: null;
+}
+
+/* ---------- Dialogs / Alerts (owner-window popups) ---------- */
+
+.dialog-pane {
+    -fx-background-color: -bg-surface;
+    -fx-font-family: "Inter", "Segoe UI", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 16px;
+    -fx-padding: 8 8 4 8;
+}
+
+.dialog-pane > .content {
+    -fx-padding: 20 20 8 20;
+}
+
+/* Frameless popups (Dialogs.frameless): the window is transparent, and the pane draws a card inset from
+   its edges, leaving room inside the window for the card's shadow. */
+.dialog-pane.app-dialog {
+    -fx-background-color: -bg-surface;
+    -fx-background-insets: 16;
+    -fx-background-radius: 16;
+    -fx-border-color: -border-strong;
+    -fx-border-insets: 16;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 24 24 20 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 20, 0.15, 0, 4);
+}
+
+/* Windows (Dialogs.frameless): an opaque window, so the card fills it with square corners and no shadow,
+   letting its text use LCD smoothing. The padding keeps the content where it sits inside the inset card. */
+.dialog-pane.app-dialog.app-dialog-opaque {
+    -fx-background-insets: 0;
+    -fx-background-radius: 0;
+    -fx-border-insets: 0;
+    -fx-border-radius: 0;
+    -fx-padding: 8 8 4 8;
+    -fx-effect: null;
+}
+
+/* Dims the app behind an open popup. */
+.dialog-scrim {
+    -fx-background-color: rgba(0, 0, 0, 0.35);
+}
+
+.dialog-pane > *.button-bar > *.container {
+    -fx-padding: 16 20 16 20;
+}
+
+.dialog-pane .content.label {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 16px;
+    -fx-line-spacing: 3px;
+}
+
+.dialog-pane:header *.header-panel {
+    -fx-background-color: -bg-surface;
+    -fx-padding: 20 24 8 24;
+}
+
+.dialog-pane:header *.header-panel .label {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+/* Message dialogs (Dialogs.confirm/info/error): a heading over the text, no system graphic. */
+.dialog-body {
+    -fx-padding: 8 4 4 4;
+}
+
+.dialog-title {
+    -fx-font-size: 19px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+}
+
+.dialog-message {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 15px;
+    -fx-line-spacing: 3px;
+}
+
+.dialog-error .dialog-title {
+    -fx-text-fill: -danger;
+}
+
+/* The action button of a destructive confirm: solid red instead of the yellow default. */
+.dialog-pane .button.dialog-danger,
+.dialog-pane .button.dialog-danger:default {
+    -fx-background-color: -danger;
+    -fx-border-color: -danger;
+    -fx-text-fill: -bg-surface;
+    -fx-font-weight: 600;
+}
+
+.dialog-pane .button.dialog-danger:hover {
+    -fx-background-color: -danger-hover;
+    -fx-border-color: -danger-hover;
+}
+
+/* ---------- Chip ---------- */
+
+.chip {
+    -fx-background-color: -accent-soft;
+    -fx-background-radius: 99;
+    -fx-border-radius: 99;
+    -fx-border-color: -accent-soft-border;
+    -fx-border-width: 1;
+    -fx-padding: 4 12 4 12;
+}
+
+.chip-label {
+    -fx-text-fill: -accent-pressed;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.chip-neutral {
+    -fx-background-color: -bg-surface-alt;
+    -fx-border-color: -border-subtle;
+}
+
+.chip-neutral .chip-label {
+    -fx-text-fill: -text-secondary;
+}
+
+/* A tag's options in the tag tree ("group", "pick one"). */
+.tag-flag {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-radius: 99;
+    -fx-border-radius: 99;
+    -fx-border-color: -border-subtle;
+    -fx-border-width: 1;
+    -fx-padding: 1 8 1 8;
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.chip-remove {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 0 0 0 2;
+    -fx-min-height: 0;
+    -fx-font-size: 11px;
+    -fx-text-fill: -accent-pressed;
+    -fx-opacity: 0.7;
+    -fx-effect: null;
+}
+
+.chip-remove:hover {
+    -fx-background-color: transparent;
+    -fx-opacity: 1;
+}
+
+/* ---------- Topography ---------- */
+
+/* The faint contour pattern (see Topography.java). Lines in the text color, so
+   both themes get it for free. */
+.topography-line {
+    -fx-fill: -text-primary;
+}
+
+/* .topography-lines' opacity is the Appearance setting (Topography.OPACITY), not set here. */
+
+/* ---------- EmptyState ---------- */
+
+.empty-state-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+.empty-state-message {
+    -fx-font-size: 15px;
+    -fx-text-fill: -text-tertiary;
+}
+
+/* ---------- ImageTile ---------- */
+
+.image-tile {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -border-subtle;
+    -fx-border-width: 1;
+    -fx-border-radius: 14;
+    -fx-cursor: hand;
+}
+
+.image-tile:hover {
+    -fx-border-color: -border-strong;
+}
+
+.image-tile.selected {
+    -fx-border-color: -accent;
+    -fx-border-width: 2.5;
+    -fx-background-color: -accent-soft;
+}
+
+.image-tile-badge {
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 99;
+    -fx-text-fill: -warning;
+    -fx-font-size: 14px;
+    -fx-min-width: 28px;
+    -fx-min-height: 28px;
+    -fx-alignment: CENTER;
+}
+
+/* The Import page's cards: the include checkbox and a status badge, each on
+   its own backing so they read over any picture. */
+.staged-card-check {
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 8;
+    -fx-padding: 5;
+    -fx-cursor: hand;
+}
+
+.staged-card-status {
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 99;
+    -fx-text-fill: -overlay-text;
+    -fx-font-size: 12px;
+    -fx-padding: 3 10 3 10;
+}
+
+/* Circular overlay button that sits on top of a thumbnail; needs its own
+   backing so it stays legible over any image, not just app surfaces. */
+.tile-remove-button {
+    -fx-background-color: -overlay-bg;
+    -fx-text-fill: -overlay-text;
+    -fx-border-width: 0;
+    -fx-background-radius: 99;
+    -fx-min-width: 30px;
+    -fx-min-height: 30px;
+    -fx-max-width: 30px;
+    -fx-max-height: 30px;
+    -fx-padding: 0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-alignment: CENTER;
+    -fx-cursor: hand;
+    -fx-effect: null;
+}
+
+.tile-remove-button:hover {
+    -fx-background-color: -danger;
+}
+
+/* ---------- Image stage (practice, detail) ---------- */
+
+.image-area {
+    -fx-background-color: -image-area-bg;
+}
+
+.image-detail-view {
+    -fx-background-color: -bg-app;
+}
+
+.stage-pill {
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 99;
+    -fx-text-fill: -overlay-text;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-padding: 10 22 10 22;
+}
+
+.hud-timer {
+    -fx-font-size: 26px;
+    -fx-font-weight: 700;
+    -fx-text-fill: -text-primary;
+    -fx-min-width: 80px;
+    -fx-alignment: CENTER_RIGHT;
+}
+
+.hud-timer.urgent {
+    -fx-text-fill: -warning;
+}
+
+.hud-timer.urgent .icon-shape {
+    -fx-fill: -warning;
+}
+
+/* Big and a little see-through so it reads from a drawing desk without covering much of the image. */
+.image-timer {
+    -fx-background-color: -overlay-bg;
+    -fx-background-radius: 16;
+    -fx-text-fill: -overlay-text;
+    -fx-font-size: 44px;
+    -fx-font-weight: 700;
+    -fx-padding: 6 20 6 20;
+    -fx-opacity: 0.8;
+}
+
+/* -warning is tuned for the page background; the overlay is dark in both themes, so use the bright gruvbox orange. */
+.image-timer.urgent {
+    -fx-text-fill: #fe8019;
+}
+
+.hud-meta {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 15px;
+}
+
+.detail-sidebar {
+    -fx-background-color: -bg-surface;
+    -fx-border-color: transparent transparent transparent -border-subtle;
+    -fx-border-width: 0 0 0 1;
+}
+
+.detail-name {
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+}
+
+.meta-key {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 14px;
+}
+
+.meta-value {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+}
+
+/* ---------- Filter builder ---------- */
+
+.filter-row {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-radius: 10;
+    -fx-padding: 6 6 6 14;
+}
+
+.filter-row-tag {
+    -fx-font-weight: 600;
+}
+
+/* Condition builder: each row is a tinted strip; a nested and/or group gets a bracket down its left edge. */
+.condition-group {
+    -fx-border-color: transparent transparent transparent -accent-soft-border;
+    -fx-border-width: 0 0 0 3;
+    -fx-padding: 2 0 2 12;
+}
+
+.condition-row {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-radius: 10;
+    -fx-padding: 6 6 6 14;
+}
+
+.condition-lead {
+    -fx-padding: 0 8 0 4;
+    -fx-text-fill: -text-secondary;
+    -fx-font-weight: 600;
+    /* Fixed so "Where", "and", and "or" rows line their dropdowns up on one edge. */
+    -fx-min-width: 64;
+    -fx-pref-width: 64;
+}
+
+/* A group's lead sits level with its first row rather than the bracket's middle. */
+.condition-lead-group {
+    -fx-padding: 14 8 0 4;
+}
+
+.filter-panel {
+    -fx-background-color: -bg-surface;
+    -fx-border-color: transparent transparent -border-subtle transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* ---------- Help ---------- */
+
+.kbd {
+    -fx-background-color: -bg-surface-alt;
+    -fx-border-color: -border-strong;
+    -fx-border-width: 1 1 2 1;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+/* ---------- Small shared bits ---------- */
+
+.btn-ghost-danger {
+    -fx-text-fill: -danger;
+}
+
+.btn-ghost-danger:hover {
+    -fx-background-color: -danger-soft;
+    -fx-text-fill: -danger;
+}
+
+.queue-index {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 99;
+    -fx-min-width: 28px;
+    -fx-min-height: 28px;
+    -fx-alignment: CENTER;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-secondary;
+}
+
+/* ---------- Tag colors ---------- */
+
+.tag-color-red    { -tag-color: -tag-red; }
+.tag-color-orange { -tag-color: -tag-orange; }
+.tag-color-yellow { -tag-color: -tag-yellow; }
+.tag-color-green  { -tag-color: -tag-green; }
+.tag-color-aqua   { -tag-color: -tag-aqua; }
+.tag-color-blue   { -tag-color: -tag-blue; }
+.tag-color-purple { -tag-color: -tag-purple; }
+.tag-color-gray   { -tag-color: -tag-gray; }
+
+.tag-swatch {
+    -fx-background-color: -tag-color;
+    -fx-background-radius: 99;
+    -fx-min-width: 12px;
+    -fx-min-height: 12px;
+    -fx-max-width: 12px;
+    -fx-max-height: 12px;
+}
+
+.tag-chip-colored {
+    -fx-background-color: -bg-surface-alt;
+    -fx-border-color: -tag-color;
+}
+
+.tag-chip-colored .chip-label,
+.tag-chip-colored .chip-remove {
+    -fx-text-fill: -tag-color;
+}
+
+.tag-chip-colored .chip-remove .icon-shape {
+    -fx-fill: -tag-color;
+}
+
+.tree-tag-description {
+    -fx-text-overrun: ellipsis;
+}
+
+/* ---------- Viewer adjustments panel ---------- */
+
+.adjust-panel {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 14;
+    -fx-border-color: -border-subtle;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+}
+
+/* The adjust panel's shadow, drawn by a layer behind it so the panel's own text keeps LCD smoothing. */
+.adjust-panel-shadow {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 24, 0, 0, 6);
+}
+
+.adjust-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+}
+
+.adjust-label {
+    -fx-text-fill: -text-secondary;
+    -fx-font-size: 14px;
+}
+
+.adjust-hint {
+    -fx-text-fill: -text-tertiary;
+    -fx-font-size: 13px;
+}
+
+/* SliderSkin stretches the track by its corner radius, so keep it to the track's half-height, not 99. */
+.slider .track {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-insets: 0;
+    -fx-background-radius: 3;
+    -fx-padding: 3;
+}
+
+.slider .thumb {
+    -fx-background-color: -accent;
+    -fx-background-insets: 0;
+    -fx-background-radius: 99;
+    -fx-padding: 7;
+    -fx-effect: null;
+}
+
+.slider .thumb:hover, .slider .thumb:pressed {
+    -fx-background-color: -accent-hover;
+}
+
+.slider:disabled {
+    -fx-opacity: 0.45;
+}
+
+/* ---------- Gallery extras ---------- */
+
+.tile-size-control .icon-shape {
+    -fx-fill: -text-tertiary;
+}
+
+.menu-button.more-menu > .arrow-button {
+    -fx-padding: 0 0 0 8;
+}
+
+.menu-button.more-menu > .arrow-button > .arrow {
+    -fx-background-color: -text-secondary;
+}
+
+/* ---------- Playlists ---------- */
+
+.tile-cover-badge {
+    -fx-text-fill: -overlay-text;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 3 10 3 10;
+}
+
+.playlist-cover {
+    -fx-background-color: -bg-surface-alt;
+    -fx-background-radius: 6;
+}
+
+/* ---------- Settings ---------- */
+
+.shortcut-key {
+    -fx-font-weight: 600;
+}
+
+/* What a key that can't be rebound does: faded to match its disabled key button. */
+.shortcut-fixed-label {
+    -fx-opacity: 0.45;
+}
+
+/* The toolbar's "⋯" menu is icon-only; its drop arrow would sit on top of the dots. */
+.menu-button.toolbar-overflow > .arrow-button {
+    -fx-padding: 0;
+    visibility: hidden;
+}
+
+.menu-button.toolbar-overflow > .arrow-button > .arrow {
+    -fx-padding: 0;
+}
+
+/* An icon button that's switched on (a pinned preset's pin). */
+.btn-icon.btn-icon-active .icon-shape {
+    -fx-fill: -accent-text;
+}
+
+.btn-icon.btn-icon-active .icon-line {
+    -fx-stroke: -accent-text;
+}
+
+/* A subsection heading on the Help page. */
+.help-topic {
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-text-fill: -text-primary;
+}
+
+/* Windows: LCD (ClearType-style) text, see Theme.WINDOWS_CLASS. JavaFX falls back to grayscale by itself
+   wherever LCD can't work (text over a transparent or animated background). */
+.os-windows .text {
+    -fx-font-smoothing-type: lcd;
+}
+
+/* ---------- Loading screen (while the library opens) ---------- */
+
+.loading-screen {
+    -fx-background-color: -bg-app;
+}
+
+.loading-screen .progress-indicator {
+    -fx-progress-color: -accent;
+}
+
+/* ---------- Undo bar (ui.common.UndoBar) ---------- */
+
+.undo-bar {
+    -fx-background-color: -bg-surface;
+    -fx-background-radius: 12;
+    -fx-border-color: -border-strong;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 8 8 8 18;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 20, 0.15, 0, 4);
+}
+
+.undo-bar-message {
+    -fx-text-fill: -text-primary;
+    -fx-font-size: 15px;
+}

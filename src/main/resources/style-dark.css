@@ -1,0 +1,59 @@
+/*
+ * Dark theme: redefines the token palette from style.css on .root. Because
+ * every component rule in style.css reads these tokens (looked-up colors)
+ * instead of hardcoded hex, repainting the tokens here repaints the whole
+ * app; this file only needs to touch the few spots where the light theme's
+ * "darker accent for text" choice reads poorly on dark surfaces.
+ *
+ * Palette is gruvbox (dark variant) with the bright yellow as accent.
+ */
+
+.root {
+    -bg-app:             #1d2021;
+    -bg-surface:         #282828;
+    -bg-surface-alt:      #32302f;
+    -bg-surface-hover:    #3c3836;
+    /* Lighter than the track (and than hover), so the chosen option doesn't read as a dark hole. */
+    -segment-selected-bg: #504945;
+    -border-subtle:       #3c3836;
+    -border-strong:       #504945;
+    -text-primary:        #ebdbb2;
+    -text-secondary:      #bdae93;
+    -text-tertiary:       #928374;
+    -accent:              #fabd2f;
+    -accent-hover:        #fbcb5c;
+    -accent-pressed:      #d79921;
+    -accent-soft:         #3a3220;
+    -accent-soft-border:  #5a4a24;
+    -accent-contrast:     #282828;
+    -accent-text:         #fabd2f;
+    -danger:              #fb4934;
+    -danger-hover:        #fc6d5c;
+    -danger-soft:         #3a2220;
+    -danger-soft-border:  #5c2b26;
+    -warning:             #fe8019;
+    -nav-bg:              #1d2021;
+    -nav-text:            #bdae93;
+    -nav-text-selected:   #ebdbb2;
+    -nav-hover-bg:        #32302f;
+    -nav-selected-bg:     #3c3836;
+    -image-area-bg:       #161819;
+    -overlay-bg:          rgba(29,32,33,0.8);
+    /* Tag colors: gruvbox's bright hues, for dark surfaces. */
+    -tag-red:             #fb4934;
+    -tag-orange:          #fe8019;
+    -tag-yellow:          #fabd2f;
+    -tag-green:           #b8bb26;
+    -tag-aqua:            #8ec07c;
+    -tag-blue:            #83a598;
+    -tag-purple:          #d3869b;
+    -tag-gray:            #a89984;
+}
+
+.table-row-cell:filled:selected .table-cell,
+.list-view .list-cell:filled:selected, .tree-view .tree-cell:filled:selected,
+.toggle-button:selected, .toggle-button.btn-ghost:selected,
+.chip-label, .chip-remove {
+    -fx-text-fill: -accent;
+    -fx-fill: -accent;
+}
