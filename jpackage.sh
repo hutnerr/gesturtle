@@ -47,6 +47,14 @@ case "$(uname -s)" in
   *) ICON="packaging/gesturtle.png" ;;
 esac
 
+# --about-url shows in the package info (deb/rpm) and Windows' installed-apps
+# list. jpackage rejects it for app-image and on macOS, so it's added only
+# for installer types elsewhere.
+EXTRA=()
+if [ "$TYPE" != "app-image" ] && [ "$(uname -s)" != "Darwin" ]; then
+  EXTRA+=(--about-url "https://hutnerr.itch.io/gesturtle")
+fi
+
 echo "==> jpackage --type $TYPE (app version $VERSION)"
 rm -rf "$DEST" "$STAGE"
 mkdir -p "$DEST" "$STAGE"
@@ -64,6 +72,7 @@ jpackage \
   --icon "$ICON" \
   --dest "$DEST" \
   --java-options "--enable-native-access=ALL-UNNAMED" \
-  --type "$TYPE"
+  --type "$TYPE" \
+  ${EXTRA[@]+"${EXTRA[@]}"}
 
 echo "==> done: $DEST"

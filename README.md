@@ -5,12 +5,15 @@ A desktop app for timed drawing practice, built around your own tagged library o
 
 Sites like [Line of Action](https://line-of-action.com/practice-tools/app/figure-drawing) and [Quickposes](https://quickposes.com/en) are great until you want to practice from *your* references. Gesturtle imports your images into a local library, lets you tag and filter them however you like, and turns any part of that library into a study session.
 
+**Download:** [itch.io](https://hutnerr.itch.io/gesturtle) or [GitHub Releases](https://github.com/hutnerr/gesturtle/releases)
+
 **Tech Stack:** Java 21, JavaFX, SQLite
 
 **Roadmap:**
 - **Board Imports**: Paste a Pinterest board link and pull in every pin, with each pin's link as its credit. Other reference sites are candidates too
 
 **Links:**
+- [itch.io](https://hutnerr.itch.io/gesturtle)
 - [Example Library](https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip)
 
 > View more about the project on its [showcase page](https://www.hunter-baker.com/pages/projects/gesturtle.html).

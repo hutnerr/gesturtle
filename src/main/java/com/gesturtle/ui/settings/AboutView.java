@@ -25,6 +25,7 @@ import javafx.scene.text.TextFlow;
 public class AboutView extends Page {
     private static final String REPO = "https://github.com/hutnerr/gesturtle";
     private static final String KOFI = "https://ko-fi.com/hutner";
+    private static final String ITCH = "https://hutnerr.itch.io/gesturtle";
 
     /** JavaFX's launcher rather than AWT Desktop.browse(), for the reason in HelpView. */
     private final HostServices hostServices;
@@ -45,6 +46,7 @@ public class AboutView extends Page {
         VBox links = new VBox(2,
                 hyperlinkTo("Source code", REPO),
                 hyperlinkTo("Releases", REPO + "/releases"),
+                hyperlinkTo("itch.io page", ITCH),
                 hyperlinkTo("Report a bug or ask for a feature", REPO + "/issues/new"));
         // No automatic check: Gesturtle makes no network requests of its own. The releases page lists the newest.
         AppButton updates = AppButton.secondary("Check for updates", () -> hostServices.showDocument(REPO + "/releases"))
