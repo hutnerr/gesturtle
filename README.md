@@ -48,6 +48,11 @@ On first launch, pick (or create) a folder for your library, then:
 
 To try it without your own images, download the [example library](https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip) and open it through **Settings › Backup › Import archive…**
 
+## Keeping it in git
+The library folder can be a git repo. Gesturtle writes a `.gitignore` that tracks `images/` and `meta/` and leaves out the database, thumbnails, and exports, so practicing never leaves anything to commit.
+
+Pull and push whenever you like. Edits to different images, tags, or views are edits to different files, so they merge on their own. Changing the same thing on two machines gives an ordinary git conflict, and Gesturtle picks the file back up once you fix it.
+
 ## Showcase
 <table>
   <tr>
@@ -67,25 +72,6 @@ To try it without your own images, download the [example library](https://www.hu
     <td><img src="docs/screenshots/playlists.webp" alt="Playlists"></td>
   </tr>
 </table>
-
-## How It Works
-Your library is a folder you choose. Images are stored by their SHA-256 hash, so duplicates are caught for free. Everything worth keeping lives in small JSON files under `meta/`, one per image, tag, playlist, view, and preset. The SQLite database is a local cache rebuilt from `meta/`, and also holds machine-specific data like practice history and seen counts.
-
-```
-library/
-  meta/             tags, image details, playlists, views, presets (JSON)
-  images/ab/cd/     originals, named by content hash
-  gesturtle.db      local cache and practice history
-  thumbs/           thumbnail cache, rebuilt on demand
-  exports/          export archives
-```
-
-Every practice mode is the same model underneath: a session is a list of segments, and each segment has a source (filter, playlist, or view), a count, an order, and a timer.
-
-### Keeping it in git
-The library folder can be a git repo. Gesturtle writes a `.gitignore` that tracks `images/` and `meta/` and leaves out the database, thumbnails, and exports, so practicing never leaves anything to commit.
-
-Pull and push whenever you like. Edits to different images, tags, or views are edits to different files, so they merge on their own. Changing the same thing on two machines gives an ordinary git conflict, and Gesturtle picks the file back up once you fix it.
 
 ## Setup
 To run this locally, you need **JDK 21** and **Maven**.
