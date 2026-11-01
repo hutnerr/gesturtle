@@ -1,9 +1,9 @@
 > This project is mostly completed but a roadmap exists and may receive new features.
 
 ## Overview
-A desktop app for timed drawing practice, built around your own tagged library of reference images.
+A desktop app for timed drawing practice, built around your own tagged library of reference images. 
 
-Sites like Line of Action and Quickposes are great until you want to practice from *your* references. Gesturtle imports your images into a local library, lets you tag and filter them however you like, and turns any part of that library into a gesture, memory, or study session in one click.
+Sites like [Line of Action](https://line-of-action.com/practice-tools/app/figure-drawing) and [Quickposes](https://quickposes.com/en) are great until you want to practice from *your* references. Gesturtle imports your images into a local library, lets you tag and filter them however you like, and turns any part of that library into a study session.
 
 **Tech Stack:** Java 21, JavaFX, SQLite
 
@@ -39,10 +39,14 @@ Sites like Line of Action and Quickposes are great until you want to practice fr
 - **Image Details**: Favorites, credit, notes, seen counts, and a "not seen in N days" filter
 - **Portable**: The library is one self-contained folder, so you can back it up, sync it, or [keep it in git](#keeping-it-in-git)
 
-**Everything Else**
-- **Themes**: Light and dark Gruvbox themes
-- **Shortcuts**: Every one of them can be rebound
-- **Smooth**: Animations and scrolling run at your display's refresh rate
+## Usage
+On first launch, pick (or create) a folder for your library, then:
+
+1. **Import** a few images or a whole folder and add tags.
+2. **View** them in the Gallery.
+3. Hit **Start practice** on a Home preset, or build a session on the Practice page.
+
+To try it without your own images, download the [example library](https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip) and open it through **Settings › Backup › Import archive…**
 
 ## Showcase
 <table>
@@ -63,31 +67,6 @@ Sites like Line of Action and Quickposes are great until you want to practice fr
     <td><img src="docs/screenshots/playlists.webp" alt="Playlists"></td>
   </tr>
 </table>
-
-## Usage
-On first launch, pick (or create) a folder for your library, then:
-
-1. **Import** a few images or a whole folder. Add batch tags as you go.
-2. **Tag** them in the Gallery or the Tags page.
-3. Hit **Start practice** on a Home preset, or build a session on the Practice page.
-
-To try it without your own images, download the [example library](https://www.hunter-baker.com/assets/projects/gesturtle/gesturtle-example-library.zip) (167 tagged public domain artworks with playlists, views, and presets) and open it through **Settings › Backup › Import archive…**
-
-**Shortcuts**
-| Key | Action | Key | Action |
-|---|---|---|---|
-| `Space` | Pause / resume | `G` | Grayscale |
-| `←` `→` | Previous / next | `B` | Blur |
-| `E` | Add 30 seconds | `L` | Value study (2 → 3 → 4 tones → off) |
-| `Backspace` | Restart the timer | `R` | Grid |
-| `F` | Favorite | `I` | Invert |
-| `T` | Tag | `A` | Brightness and contrast |
-| `P` | Keep window on top | `H` `V` | Flip |
-| `Z` | Hide controls | `[` `]` | Rotate |
-| `Esc` | Exit | `+` `-` `0` `1` | Zoom in, out, fit, 100% |
-| `F11` | Full screen | `Ctrl+V` | Paste images to import |
-
-All of them can be rebound in Settings, which also lists the rest.
 
 ## How It Works
 Your library is a folder you choose. Images are stored by their SHA-256 hash, so duplicates are caught for free. Everything worth keeping lives in small JSON files under `meta/`, one per image, tag, playlist, view, and preset. The SQLite database is a local cache rebuilt from `meta/`, and also holds machine-specific data like practice history and seen counts.
