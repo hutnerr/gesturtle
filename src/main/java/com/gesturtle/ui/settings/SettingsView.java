@@ -204,6 +204,7 @@ public class SettingsView extends Page {
             label.getStyleClass().add("body-text");
             label.setWrapText(true);
             if (action.scope == Shortcuts.Scope.PRACTICE) label.setTooltip(new Tooltip("Only during practice"));
+            if (action.scope == Shortcuts.Scope.VIEWER) label.setTooltip(new Tooltip("Only in the Gallery's image view"));
             ToggleButton keyButton = AppButton.small(AppButton.toggle(Shortcuts.describe(action), AppButton.Variant.SECONDARY));
             keyButton.getStyleClass().add("shortcut-key");
             keyButton.setMinWidth(110);

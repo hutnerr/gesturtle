@@ -8,7 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class PlaylistDao {
     private final Connection connection;
@@ -116,6 +118,21 @@ public class PlaylistDao {
             ps.setInt(1, playlistId);
             ps.setInt(2, imageId);
             ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /** The playlists this image is in. */
+    public Set<Integer> playlistIdsOf(int imageId) {
+        try (PreparedStatement ps = connection.prepareStatement(
+                "SELECT playlist_id FROM playlist_item WHERE image_id = ?")) {
+            ps.setInt(1, imageId);
+            try (ResultSet rs = ps.executeQuery()) {
+                Set<Integer> ids = new HashSet<>();
+                while (rs.next()) ids.add(rs.getInt(1));
+                return ids;
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

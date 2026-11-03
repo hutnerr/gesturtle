@@ -9,7 +9,9 @@ import com.gesturtle.ui.common.Motion;
 import com.gesturtle.ui.common.Shortcuts;
 import com.gesturtle.ui.components.AppButton;
 import com.gesturtle.ui.components.ImageViewer;
+import com.gesturtle.ui.components.SegmentedControl;
 import com.gesturtle.ui.components.Toolbar;
+import com.gesturtle.ui.playlist.PlaylistChecklist;
 import com.gesturtle.ui.tags.TagChip;
 import com.gesturtle.ui.tags.TagPicker;
 import javafx.beans.property.BooleanProperty;
@@ -23,8 +25,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.RowConstraints;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -44,6 +48,12 @@ import java.util.Set;
  * loses focus or the view moves to another image. Like practice, it doubles
  * as a free-study mode: full screen (F11) and hiding the toolbar and sidebar
  * (Z) leave just the image.
+ *
+ * Edit mode (the View/Edit switch, or M) swaps the info sidebar for the
+ * import preview's tag tree and playlist checklist, for going through images one after another:
+ * tick, press →, tick. Every tick is written straight away rather than on
+ * leaving the image, the same as favoriting. The mode sticks across images
+ * and across openings, since someone tidying up tags tends to keep at it.
  */
 public class ImageDetailView extends BorderPane {
     private final LibraryService library;
@@ -67,6 +77,12 @@ public class ImageDetailView extends BorderPane {
     private final Label controlsHint = new Label();
     private javafx.animation.Animation hintAnimation;
     private final BooleanProperty controlsHidden = new SimpleBooleanProperty(false);
+    private final BooleanProperty editMode = new SimpleBooleanProperty(false);
+    private final SegmentedControl<Boolean> modeSwitch = new SegmentedControl<Boolean>()
+            .option(false, "View", "eye")
+            .option(true, "Edit", "pencil");
+    private final TagPicker tagPicker;
+    private final PlaylistChecklist playlists;
     /** Keeps the toolbar toggle in sync however full screen changes (F11, Esc, the window manager). */
     private final ChangeListener<Boolean> fullScreenListener = (o, was, on) -> syncFullScreenButton(on);
     private final javafx.event.EventHandler<javafx.scene.input.KeyEvent> keyFilter = this::handleKey;
@@ -92,10 +108,13 @@ public class ImageDetailView extends BorderPane {
         List<javafx.scene.Node> viewerTools = viewer.toolButtons();
         AppButton backButton = AppButton.icon("arrow-left", "Back to the grid (Esc)", this::close);
         AppButton tagsButton = AppButton.icon("tag", Shortcuts.hint(Shortcuts.Action.TAG), this::editTags);
+        javafx.scene.control.Tooltip.install(modeSwitch, new javafx.scene.control.Tooltip(
+                "View the image's details, or edit its tags and playlists (" + Shortcuts.describe(Shortcuts.Action.EDIT_MODE) + ")"));
+        modeSwitch.onChange(editMode::set);
         AppButton deleteButton = AppButton.icon("trash", "Move to the " + com.gesturtle.library.SystemTrash.NAME, this::delete);
         deleteButton.getStyleClass().add("btn-ghost-danger");
         Toolbar topBar = new Toolbar()
-                .left(backButton)
+                .left(backButton, modeSwitch)
                 .center(AppButton.icon("chevron-left", Shortcuts.hint(Shortcuts.Action.PREVIOUS), () -> move(-1)), positionLabel,
                         AppButton.icon("chevron-right", Shortcuts.hint(Shortcuts.Action.NEXT), () -> move(1)))
                 .right(viewerTools.toArray(javafx.scene.Node[]::new))
@@ -153,12 +172,50 @@ public class ImageDetailView extends BorderPane {
         sidebarScroll.setHbarPolicy(javafx.scene.control.ScrollPane.ScrollBarPolicy.NEVER);
         sidebarScroll.getStyleClass().add("page-scroll");
         sidebar.minHeightProperty().bind(sidebarScroll.heightProperty());
-        setRight(sidebarScroll);
-        controlsHidden.addListener((o, was, hidden) -> {
+        tagPicker = new TagPicker(library, true);
+        tagPicker.setOnChange(this::applyTags);
+        playlists = new PlaylistChecklist(library, "In playlists");
+        playlists.setOnChange(this::applyPlaylists);
+        // Tags over playlists, 2:1, like the import preview: tagging is most of the work.
+        // Same place and width as the info sidebar it stands in for, so the image doesn't jump.
+        GridPane editPanel = new GridPane();
+        editPanel.getStyleClass().add("detail-sidebar");
+        editPanel.setPadding(new Insets(20));
+        editPanel.setVgap(16);
+        editPanel.setPrefWidth(340);
+        editPanel.setMinWidth(340);
+        editPanel.setMaxWidth(340);
+        editPanel.addColumn(0, tagPicker, playlists);
+        RowConstraints tagsRow = new RowConstraints();
+        tagsRow.setPercentHeight(200.0 / 3);
+        RowConstraints playlistsRow = new RowConstraints();
+        playlistsRow.setPercentHeight(100.0 / 3);
+        editPanel.getRowConstraints().addAll(tagsRow, playlistsRow);
+        ColumnConstraints column = new ColumnConstraints();
+        column.setPercentWidth(100);
+        editPanel.getColumnConstraints().add(column);
+
+        Runnable layoutPanels = () -> {
+            boolean hidden = controlsHidden.get();
             setTop(hidden ? null : topBar);
-            setRight(hidden ? null : sidebarScroll);
+            setRight(hidden ? null : editMode.get() ? editPanel : sidebarScroll);
             viewer.setInset(hidden ? 0 : 24);
+        };
+        layoutPanels.run();
+        controlsHidden.addListener((o, was, hidden) -> {
+            layoutPanels.run();
             if (hidden) flashControlsHint();
+        });
+        editMode.addListener((o, was, on) -> {
+            // Leaving the info sidebar commits Credit/Notes, as moving to another image would.
+            if (on) {
+                saveDetails();
+                syncEditPanel(true);
+            } else if (context != null) {
+                render();
+            }
+            modeSwitch.setValue(on);
+            layoutPanels.run();
         });
 
         // Full screen belongs to the viewer: leaving the scene (navigating to another view)
@@ -222,7 +279,12 @@ public class ImageDetailView extends BorderPane {
             case NEXT -> move(1);
             case HIDE_CONTROLS -> controlsHidden.set(!controlsHidden.get());
             case FAVORITE -> toggleFavorite();
-            case TAG -> editTags();
+            case TAG -> {
+                // The tree is already docked in edit mode: jump into it rather than opening a dialog over it.
+                if (editMode.get()) tagPicker.focusTree();
+                else editTags();
+            }
+            case EDIT_MODE -> editMode.set(!editMode.get());
             default -> {
                 if (!viewer.handle(action)) return;
             }
@@ -240,6 +302,8 @@ public class ImageDetailView extends BorderPane {
         this.context = new java.util.ArrayList<>(context);
         this.index = startIndex;
         shownHash = null; // reload fields even if this is the image shown last time
+        // Tags and playlists may have been added or renamed elsewhere since the last opening.
+        if (editMode.get()) syncEditPanel(true);
         render();
         Motion.zoomIn(this, 0.97, 200);
         com.gesturtle.ui.common.Sounds.play(com.gesturtle.ui.common.Sounds.Sound.OPEN);
@@ -297,6 +361,7 @@ public class ImageDetailView extends BorderPane {
         saveDetails();
         index = newIndex;
         render();
+        if (editMode.get()) syncEditPanel(false);
     }
 
     private void render() {
@@ -394,6 +459,56 @@ public class ImageDetailView extends BorderPane {
     private void removeTag(ImageRecord record, Tag tag) {
         library.images().removeTag(record.id(), tag.id());
         refreshCurrent();
+        onLibraryChanged.run();
+    }
+
+    /**
+     * Ticks the edit panel to match the current image. reloadLists rebuilds
+     * the tag tree and playlist list first, to pick up ones made elsewhere;
+     * stepping between images skips that, so the tree keeps its scroll and
+     * collapsed state.
+     */
+    private void syncEditPanel(boolean reloadLists) {
+        if (context == null) return;
+        ImageRecord record = context.get(index);
+        if (reloadLists) {
+            tagPicker.refresh();
+            playlists.reload();
+        }
+        tagPicker.selectTagIds(new HashSet<>(record.tagIds()));
+        playlists.setChecked(library.playlists().playlistIdsOf(record.id()));
+    }
+
+    /**
+     * Writes the difference between the tree and the image's tags. Not
+     * re-ticking the tree afterwards: this runs inside a checkbox's listener,
+     * and the tree already unchecks a "pick one" sibling itself.
+     */
+    private void applyTags() {
+        ImageRecord record = context.get(index);
+        Set<Integer> before = new HashSet<>(record.tagIds());
+        Set<Integer> after = tagPicker.getSelectedTagIds();
+        Set<Integer> toAdd = new HashSet<>(after);
+        toAdd.removeAll(before);
+        Set<Integer> toRemove = new HashSet<>(before);
+        toRemove.removeAll(after);
+        if (toAdd.isEmpty() && toRemove.isEmpty()) return;
+        if (!toAdd.isEmpty()) library.images().addTags(record.id(), toAdd);
+        for (int tagId : toRemove) library.images().removeTag(record.id(), tagId);
+        library.images().findById(record.id()).ifPresent(updated -> context.set(index, updated));
+        onLibraryChanged.run();
+    }
+
+    private void applyPlaylists() {
+        ImageRecord record = context.get(index);
+        Set<Integer> before = library.playlists().playlistIdsOf(record.id());
+        Set<Integer> after = playlists.checked();
+        for (int id : after) {
+            if (!before.contains(id)) library.playlists().addItem(id, record.id());
+        }
+        for (int id : before) {
+            if (!after.contains(id)) library.playlists().removeItem(id, record.id());
+        }
         onLibraryChanged.run();
     }
 

@@ -82,8 +82,10 @@ public class TagPicker extends VBox {
         treeToolbar.setAlignment(Pos.CENTER_LEFT);
 
         Card treeCard = new Card().flush().add(treeView);
-        // Grows when the picker is given more height than its preferred (docked in a side panel).
+        // Grows when the picker is given more height than its preferred (docked in a side panel),
+        // and the tree with it, or the card's extra height is left empty under the last row.
         VBox.setVgrow(treeCard, javafx.scene.layout.Priority.ALWAYS);
+        VBox.setVgrow(treeView, javafx.scene.layout.Priority.ALWAYS);
         getChildren().addAll(treeToolbar, treeCard);
 
         if (allowCreate) {

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,6 +45,26 @@ class PlaylistDaoTest {
         assertEquals(a, fallback.coverImageId());
         assertFalse(fallback.explicitCover());
         assertEquals(empty, listed.get(0).id());
+        database.close();
+    }
+
+    @Test
+    void playlistIdsOfListsOnlyTheImagesOwnPlaylists(@TempDir Path tempDir) {
+        Database database = new Database(tempDir.resolve("test.db"));
+        ImageDao images = new ImageDao(database.connection());
+        PlaylistDao playlists = new PlaylistDao(database.connection());
+        int a = images.insert("a", "png", "a.png", 1, 1, 1, 1, null);
+        int b = images.insert("b", "png", "b.png", 1, 1, 1, 2, null);
+        int first = playlists.create("First");
+        int second = playlists.create("Second");
+        playlists.addItem(first, a);
+        playlists.addItem(second, a);
+        playlists.addItem(second, b);
+
+        assertEquals(Set.of(first, second), playlists.playlistIdsOf(a));
+        assertEquals(Set.of(second), playlists.playlistIdsOf(b));
+        playlists.removeItem(second, a);
+        assertEquals(Set.of(first), playlists.playlistIdsOf(a));
         database.close();
     }
 }

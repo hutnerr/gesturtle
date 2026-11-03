@@ -9,6 +9,7 @@ import com.gesturtle.ui.common.Sounds;
 import com.gesturtle.ui.components.AppButton;
 import com.gesturtle.ui.components.ImageViewer;
 import com.gesturtle.ui.components.Toolbar;
+import com.gesturtle.ui.playlist.PlaylistChecklist;
 import com.gesturtle.ui.tags.TagPicker;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
@@ -80,7 +81,7 @@ final class PreviewDialog {
         tagPicker = new TagPicker(library, true);
         tagPicker.setPrefWidth(300);
         tagPicker.setOnChange(this::applyTags);
-        playlists = new PlaylistChecklist(library);
+        playlists = new PlaylistChecklist(library, "Add to playlists");
         playlists.setOnChange(this::applyPlaylists);
 
         // Tags over playlists, 2:1: tagging is most of the work, playlists the odd extra.

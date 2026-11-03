@@ -31,6 +31,7 @@ public final class Shortcuts {
         ALWAYS_ON_TOP("Keep window on top", Scope.PRACTICE, KeyCode.P),
         FAVORITE("Favorite", Scope.BOTH, KeyCode.F),
         TAG("Tag", Scope.BOTH, KeyCode.T),
+        EDIT_MODE("Edit mode (tags & playlists docked)", Scope.VIEWER, KeyCode.M),
         HIDE_CONTROLS("Hide controls", Scope.BOTH, KeyCode.Z),
         GRAYSCALE("Grayscale", Scope.BOTH, KeyCode.G),
         BLUR("Blur", Scope.BOTH, KeyCode.B),

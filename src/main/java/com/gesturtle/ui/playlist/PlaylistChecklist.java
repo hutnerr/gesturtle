@@ -1,4 +1,4 @@
-package com.gesturtle.ui.imports;
+package com.gesturtle.ui.playlist;
 
 import com.gesturtle.library.LibraryService;
 import com.gesturtle.model.Playlist;
@@ -19,23 +19,24 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Every playlist with a checkbox, for the import preview's side panel: the
- * playlists the file showing will be added to on import. Like TagPicker's
- * setOnChange, it reports each tick as it happens rather than on OK, and a
- * playlist created from its field starts ticked.
+ * Every playlist with a checkbox, for the side panels that tag one image at a
+ * time: the import preview (the playlists the file will be added to on
+ * import) and the Gallery viewer's edit mode (the playlists the image is in).
+ * Like TagPicker's setOnChange, it reports each tick as it happens rather
+ * than on OK, and a playlist created from its field starts ticked.
  */
-final class PlaylistChecklist extends VBox {
+public final class PlaylistChecklist extends VBox {
     private final LibraryService library;
     private final ListView<Playlist> list = new ListView<>();
     private final TextField newPlaylistField = new TextField();
     private final Set<Integer> checked = new LinkedHashSet<>();
     private Runnable onChange;
 
-    PlaylistChecklist(LibraryService library) {
+    public PlaylistChecklist(LibraryService library, String headingText) {
         this.library = library;
         setSpacing(12);
 
-        Label heading = new Label("Add to playlists");
+        Label heading = new Label(headingText);
         heading.getStyleClass().add("muted-label");
 
         list.setCellFactory(lv -> new CheckCell());
@@ -43,6 +44,7 @@ final class PlaylistChecklist extends VBox {
         list.setPrefHeight(160);
         Card listCard = new Card().flush().add(list);
         VBox.setVgrow(listCard, Priority.ALWAYS);
+        VBox.setVgrow(list, Priority.ALWAYS);
 
         newPlaylistField.setPromptText("New playlist");
         newPlaylistField.setOnAction(e -> createPlaylist());
@@ -51,21 +53,26 @@ final class PlaylistChecklist extends VBox {
         addRow.setAlignment(Pos.CENTER_LEFT);
 
         getChildren().addAll(heading, listCard, addRow);
-        list.getItems().setAll(library.playlists().listAll());
+        reload();
     }
 
-    void setOnChange(Runnable onChange) {
+    public void setOnChange(Runnable onChange) {
         this.onChange = onChange;
     }
 
+    /** Picks up playlists created or renamed elsewhere since this was built. */
+    public void reload() {
+        list.getItems().setAll(library.playlists().listAll());
+    }
+
     /** The caller setting the state, so onChange isn't called. */
-    void setChecked(Set<Integer> playlistIds) {
+    public void setChecked(Set<Integer> playlistIds) {
         checked.clear();
         checked.addAll(playlistIds);
         list.refresh();
     }
 
-    Set<Integer> checked() {
+    public Set<Integer> checked() {
         return Set.copyOf(checked);
     }
 
@@ -81,7 +88,7 @@ final class PlaylistChecklist extends VBox {
         try {
             int id = library.playlists().create(name);
             newPlaylistField.clear();
-            list.getItems().setAll(library.playlists().listAll());
+            reload();
             checked.add(id);
             list.refresh();
             if (onChange != null) onChange.run();
