@@ -176,7 +176,8 @@ public class PlaylistView extends StackPane implements Refreshable {
         HBox body = new HBox(20, listCard, itemsCard);
         page.setBody(body);
 
-        detailView = new ImageDetailView(library, this::closeDetail, () -> loadItems(currentPlaylist));
+        // fillItems, not loadItems: an edit made in the viewer (a tick in edit mode, a favorite) mustn't close it.
+        detailView = new ImageDetailView(library, this::closeDetail, () -> fillItems(currentPlaylist));
 
         getChildren().addAll(page, detailView);
         detailView.setVisible(false);
@@ -230,8 +231,12 @@ public class PlaylistView extends StackPane implements Refreshable {
     }
 
     private void loadItems(Playlist playlist) {
-        currentPlaylist = playlist;
         closeDetail();
+        fillItems(playlist);
+    }
+
+    private void fillItems(Playlist playlist) {
+        currentPlaylist = playlist;
         boolean hasPlaylist = playlist != null;
         renameButton.setDisable(!hasPlaylist);
         deleteButton.setDisable(!hasPlaylist);

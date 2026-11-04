@@ -46,6 +46,8 @@ public class TagPicker extends VBox {
     private boolean collapsed = false;
     private Runnable onChange;
     private boolean quiet;
+    /** Null unless enableTagMenu was called: most pickers are for choosing, not managing, tags. */
+    private TagActions tagActions;
 
     public TagPicker(LibraryService library, boolean multiSelect) {
         this(library, multiSelect, true);
@@ -62,7 +64,7 @@ public class TagPicker extends VBox {
         treeView.setShowRoot(false);
         GuideTreeCell.install(treeView);
         if (multiSelect) {
-            treeView.setCellFactory(tv -> new CheckCell());
+            treeView.setCellFactory(tv -> new CheckCell(this));
         } else {
             treeView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
             treeView.setCellFactory(tv -> new GuideTreeCell<>() {
@@ -133,7 +135,13 @@ public class TagPicker extends VBox {
         private CheckBox checkBox;
         private CheckBoxTreeItem<Tag> boundItem;
 
-        CheckCell() {
+        CheckCell(TagPicker picker) {
+            // Built on demand rather than per row, since rows rebuild on every scroll and tick.
+            setOnContextMenuRequested(e -> {
+                if (picker.tagActions == null || getItem() == null) return;
+                picker.tagActions.menu(getItem()).show(this, e.getScreenX(), e.getScreenY());
+                e.consume();
+            });
             setOnMouseClicked(e -> {
                 if (e.getButton() != javafx.scene.input.MouseButton.PRIMARY || boundItem == null) return;
                 javafx.scene.Node target = e.getPickResult().getIntersectedNode();
@@ -316,6 +324,15 @@ public class TagPicker extends VBox {
 
     private void fireChange() {
         if (!quiet && onChange != null) onChange.run();
+    }
+
+    /**
+     * Gives each row the Tags page's right-click menu, for a picker docked
+     * beside an image. The owner's actions decide what happens after a change,
+     * typically rebuilding this tree and re-ticking the image's tags.
+     */
+    public void enableTagMenu(TagActions actions) {
+        this.tagActions = actions;
     }
 
     /** Moves keyboard focus into the tag tree. */

@@ -184,21 +184,31 @@ public class MetaStore {
      * marked and is tried again next time.
      */
     public void flush() {
-        List<MetaFiles.Entry> dirty = new ArrayList<>();
+        // Only the marks read here are cleared below, by rowid. The FX thread still writes some
+        // things itself (the Gallery viewer's edit mode ticking playlists as fast as someone
+        // clicks), and a mark it adds after its file was read for writing must stay, or that
+        // change never reaches meta/. A new mark's rowid is always above every mark still in the
+        // table, so it can't reuse one of these before it's deleted.
+        Map<MetaFiles.Entry, List<Long>> dirty = new LinkedHashMap<>();
         try (Statement st = connection.createStatement();
-             ResultSet rs = st.executeQuery("SELECT DISTINCT kind, key FROM meta_dirty")) {
-            while (rs.next()) dirty.add(new MetaFiles.Entry(rs.getString(1), rs.getString(2)));
+             ResultSet rs = st.executeQuery("SELECT rowid, kind, key FROM meta_dirty ORDER BY rowid")) {
+            while (rs.next()) {
+                dirty.computeIfAbsent(new MetaFiles.Entry(rs.getString(2), rs.getString(3)), k -> new ArrayList<>())
+                        .add(rs.getLong(1));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         IOException failure = null;
-        for (MetaFiles.Entry entry : dirty) {
+        for (var marks : dirty.entrySet()) {
+            MetaFiles.Entry entry = marks.getKey();
             try {
                 write(entry);
-                try (PreparedStatement ps = connection.prepareStatement("DELETE FROM meta_dirty WHERE kind = ? AND key = ?")) {
-                    ps.setString(1, entry.kind());
-                    ps.setString(2, entry.key());
-                    ps.executeUpdate();
+                try (PreparedStatement ps = connection.prepareStatement("DELETE FROM meta_dirty WHERE rowid = ?")) {
+                    for (long rowid : marks.getValue()) {
+                        ps.setLong(1, rowid);
+                        ps.executeUpdate();
+                    }
                 }
             } catch (IOException e) {
                 failure = e;

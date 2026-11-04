@@ -40,6 +40,7 @@ import javafx.scene.image.PixelFormat;
 import javafx.scene.input.Clipboard;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
@@ -57,9 +58,11 @@ import java.util.stream.Stream;
 
 /**
  * Pick files/folders, review them in the staging table, pick batch tags and
- * whether to delete the originals, then commit.
+ * whether to delete the originals, then commit. Opening a file shows it full
+ * size over the page (ImportDetailView), the way the Gallery opens an image,
+ * rather than in a dialog.
  */
-public class ImportView extends Page implements Refreshable {
+public class ImportView extends StackPane implements Refreshable {
     /** Library setting: the staging table's thumbnail size, so the Import page reopens the way it was left. */
     private static final String THUMB_SIZE_KEY = "import_thumb_size";
     /** Library setting: the card view's card size, kept apart from the list's thumbnail size like the Gallery's. */
@@ -97,9 +100,10 @@ public class ImportView extends Page implements Refreshable {
     private final CheckBox includeSubfolders = new CheckBox("Include subfolders");
     private final CheckBox deleteOriginals = new CheckBox("Delete originals after import");
     private int skippedDuplicates = 0;
+    private final Page page = new Page("Import");
+    private final ImportDetailView detailView;
 
     public ImportView(LibraryService library, ConfigStore configStore, AppConfig config) {
-        super("Import");
         this.library = library;
         this.configStore = configStore;
         this.config = config;
@@ -111,8 +115,8 @@ public class ImportView extends Page implements Refreshable {
                 .map(v -> Math.max(StagingGrid.MIN_TILE_SIZE, Math.min(StagingGrid.MAX_TILE_SIZE, v)))
                 .orElse(StagingGrid.DEFAULT_TILE_SIZE);
         stagingGrid.setTileSize(savedTileSize);
-        getStyleClass().add("import-view");
-        setSubtitle("No files staged");
+        page.getStyleClass().add("import-view");
+        page.setSubtitle("No files staged");
 
         includeSubfolders.setMinWidth(USE_PREF_SIZE);
         skipDuplicates.setMinWidth(USE_PREF_SIZE);
@@ -142,7 +146,7 @@ public class ImportView extends Page implements Refreshable {
                 .iconOption(true, "grid", "Cards")
                 .bare()
                 .onChange(this::setMode);
-        setActions(modeChoice, confirmButton);
+        page.setActions(modeChoice, confirmButton);
 
         javafx.scene.layout.FlowPane pickRow = new javafx.scene.layout.FlowPane(10, 10,
                 AppButton.secondary("Add files…", this::addFiles).icon("file"),
@@ -190,7 +194,7 @@ public class ImportView extends Page implements Refreshable {
                         Toolbar.divider(), clearStaged());
         VBox body = new VBox(12, topRow, selectionBar, contentStack);
         VBox.setMargin(selectionBar, new javafx.geometry.Insets(8, 0, 0, 0));
-        setBody(body);
+        page.setBody(body);
 
         stagingTable.candidates().addListener((javafx.collections.ListChangeListener<ImportCandidate>) c -> {
             if (stagingTable.candidates().isEmpty()) skippedDuplicates = 0;
@@ -224,7 +228,7 @@ public class ImportView extends Page implements Refreshable {
         });
         stagingTable.addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, this::handleRowKeys);
         // Esc clears the selection in either view. A filter, not a handler: the TableView swallows Esc itself.
-        addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
+        page.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, e -> {
             if (e.getCode() != javafx.scene.input.KeyCode.ESCAPE || stagingTable.getSelectionModel().isEmpty()
                     || e.getTarget() instanceof javafx.scene.control.TextInputControl) return;
             stagingTable.getSelectionModel().clearSelection();
@@ -232,6 +236,15 @@ public class ImportView extends Page implements Refreshable {
         });
         stagingGrid.focusTarget().addEventHandler(javafx.scene.input.KeyEvent.KEY_PRESSED, this::handleRowKeys);
         updateSelectionBar();
+
+        // Stepping through files there moves the list's selection along, so closing lands on the last one shown.
+        detailView = new ImportDetailView(library, this::closeDetail, shown -> {
+            stagingTable.getSelectionModel().clearAndSelect(stagingTable.getItems().indexOf(shown));
+            stagingTable.scrollTo(shown);
+        }, this::refreshRows);
+        getChildren().addAll(page, detailView);
+        detailView.setVisible(false);
+        detailView.setManaged(false);
     }
 
     /** The Tag and Favorite shortcuts (T and F unless rebound) act on what's selected, in either view. */
@@ -384,13 +397,20 @@ public class ImportView extends Page implements Refreshable {
         }
     }
 
-    /** Opens a staged file at full size; stepping through files there moves the table's selection along. */
+    /** Opens a staged file at full size over the page. */
     private void preview(ImportCandidate file) {
         List<ImportCandidate> files = List.copyOf(stagingTable.getItems());
-        PreviewDialog.show(library, files, Math.max(0, files.indexOf(file)), shown -> {
-            stagingTable.getSelectionModel().clearAndSelect(stagingTable.getItems().indexOf(shown));
-            stagingTable.scrollTo(shown);
-        }, this::refreshRows);
+        if (files.isEmpty()) return;
+        // Visible first: open() ends with requestFocus(), which JavaFX drops on a node that isn't showing.
+        detailView.setVisible(true);
+        detailView.setManaged(true);
+        detailView.open(files, Math.max(0, files.indexOf(file)));
+    }
+
+    private void closeDetail() {
+        detailView.setVisible(false);
+        detailView.setManaged(false);
+        (cardMode ? stagingGrid.focusTarget() : stagingTable).requestFocus();
     }
 
     private AppButton clearStaged() {
@@ -470,7 +490,7 @@ public class ImportView extends Page implements Refreshable {
         int n = stagingTable.candidates().size();
         String text = n == 0 ? "No files staged" : n + (n == 1 ? " file staged" : " files staged");
         if (skippedDuplicates > 0) text += " · " + skippedDuplicates + " duplicate" + (skippedDuplicates == 1 ? "" : "s") + " skipped";
-        setSubtitle(text);
+        page.setSubtitle(text);
     }
 
     private static boolean isDuplicate(ImportCandidate c) {
@@ -586,7 +606,7 @@ public class ImportView extends Page implements Refreshable {
 
     /** Downloads the image a link points at in the background, then stages it with the link as its credit. */
     public void stageLink(String link) {
-        setSubtitle("Downloading…");
+        page.setSubtitle("Downloading…");
         AsyncTask.runIo(() -> {
             try {
                 return IncomingImages.download(link);

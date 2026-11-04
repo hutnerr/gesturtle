@@ -6,7 +6,7 @@
     <groupId>com.gesturtle</groupId>
     <artifactId>gesturtle</artifactId>
     <!-- major.feature.bug; add "-beta" while a version is unreleased. Shown in About via version.properties. -->
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>Gesturtle</name>

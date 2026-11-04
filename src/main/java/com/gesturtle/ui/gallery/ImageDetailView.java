@@ -5,34 +5,25 @@ import com.gesturtle.model.ImageRecord;
 import com.gesturtle.model.Tag;
 import com.gesturtle.ui.common.Dialogs;
 import com.gesturtle.ui.common.ImageLoader;
-import com.gesturtle.ui.common.Motion;
 import com.gesturtle.ui.common.Shortcuts;
 import com.gesturtle.ui.components.AppButton;
-import com.gesturtle.ui.components.ImageViewer;
 import com.gesturtle.ui.components.SegmentedControl;
 import com.gesturtle.ui.components.Toolbar;
+import com.gesturtle.ui.components.ViewerScreen;
 import com.gesturtle.ui.playlist.PlaylistChecklist;
+import com.gesturtle.ui.tags.TagActions;
 import com.gesturtle.ui.tags.TagChip;
 import com.gesturtle.ui.tags.TagPicker;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
 import javafx.scene.control.ToggleButton;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.stage.Stage;
-import javafx.util.Duration;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -42,29 +33,26 @@ import java.util.Set;
 
 /**
  * Full-size image view with metadata, favorite/tag editing, and arrow-key
- * navigation. The image itself is the same ImageViewer practice
- * uses: zoom, pan, flip, grayscale, fit. Flip and grayscale carry over when
- * moving between images; zoom resets. Credit and notes save when their field
- * loses focus or the view moves to another image. Like practice, it doubles
- * as a free-study mode: full screen (F11) and hiding the toolbar and sidebar
- * (Z) leave just the image.
+ * navigation, over the Gallery page (see ViewerScreen for the viewer, Esc,
+ * and the full screen and hidden-controls study mode it shares with the
+ * Import preview). Flip and grayscale carry over when moving between
+ * images; zoom resets. Credit and notes save when their field loses focus
+ * or the view moves to another image.
  *
- * Edit mode (the View/Edit switch, or M) swaps the info sidebar for the
- * import preview's tag tree and playlist checklist, for going through images one after another:
+ * Edit mode (the View/Edit switch, or M) swaps the info sidebar for an
+ * EditPanel, the tag tree and playlist checklist, for going through images one after another:
  * tick, press →, tick. Every tick is written straight away rather than on
  * leaving the image, the same as favoriting. The mode sticks across images
  * and across openings, since someone tidying up tags tends to keep at it.
  */
-public class ImageDetailView extends BorderPane {
+public class ImageDetailView extends ViewerScreen {
     private final LibraryService library;
-    private final Runnable onClose;
     private final Runnable onLibraryChanged;
 
     private List<ImageRecord> context;
     private int index;
     private String shownHash;
 
-    private final ImageViewer viewer = new ImageViewer();
     private final Label nameLabel = new Label();
     private final GridPane metaGrid = new GridPane();
     private final ToggleButton favoriteButton = AppButton.small(AppButton.favoriteToggle(AppButton.Variant.GHOST));
@@ -72,36 +60,17 @@ public class ImageDetailView extends BorderPane {
     private final Label positionLabel = new Label();
     private final TextField creditField = new TextField();
     private final TextArea notesArea = new TextArea();
-    private final ToggleButton fullScreenButton = AppButton.withIcon(AppButton.toggle(null, AppButton.Variant.GHOST), "fullscreen");
-    /** Brief messages over the image: how to get the controls back, favorite changes. */
-    private final Label controlsHint = new Label();
-    private javafx.animation.Animation hintAnimation;
-    private final BooleanProperty controlsHidden = new SimpleBooleanProperty(false);
     private final BooleanProperty editMode = new SimpleBooleanProperty(false);
     private final SegmentedControl<Boolean> modeSwitch = new SegmentedControl<Boolean>()
             .option(false, "View", "eye")
             .option(true, "Edit", "pencil");
     private final TagPicker tagPicker;
     private final PlaylistChecklist playlists;
-    /** Keeps the toolbar toggle in sync however full screen changes (F11, Esc, the window manager). */
-    private final ChangeListener<Boolean> fullScreenListener = (o, was, on) -> syncFullScreenButton(on);
-    private final javafx.event.EventHandler<javafx.scene.input.KeyEvent> keyFilter = this::handleKey;
 
     public ImageDetailView(LibraryService library, Runnable onClose, Runnable onLibraryChanged) {
+        super(onClose);
         this.library = library;
-        this.onClose = onClose;
         this.onLibraryChanged = onLibraryChanged;
-        getStyleClass().add("image-detail-view");
-
-        viewer.setInset(24);
-        controlsHint.getStyleClass().add("stage-pill");
-        controlsHint.setMouseTransparent(true);
-        controlsHint.setOpacity(0);
-        StackPane stage = new StackPane(viewer, controlsHint);
-        stage.setMinSize(0, 0);
-        StackPane.setAlignment(controlsHint, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(controlsHint, new Insets(24));
-        setCenter(stage);
 
         favoriteButton.setOnAction(e -> toggleFavorite());
         positionLabel.getStyleClass().add("muted-label");
@@ -120,15 +89,11 @@ public class ImageDetailView extends BorderPane {
                 .right(viewerTools.toArray(javafx.scene.Node[]::new))
                 .right(Toolbar.divider(), favoriteButton, tagsButton,
                         Toolbar.divider(), deleteButton,
-                        Toolbar.divider(),
-                        AppButton.icon("eye-off", Shortcuts.hint(Shortcuts.Action.HIDE_CONTROLS), () -> controlsHidden.set(true)),
-                        fullScreenButton)
+                        Toolbar.divider())
+                .right(studyModeButtons())
                 .collapsible(backButton, tagsButton, deleteButton)
                 .overflowable(viewerTools);
-        setTop(topBar);
-        fullScreenButton.getStyleClass().add("btn-icon");
-        fullScreenButton.setOnAction(e -> setFullScreen(fullScreenButton.isSelected()));
-        syncFullScreenButton(false);
+        setTopBar(topBar);
 
         nameLabel.getStyleClass().add("detail-name");
         nameLabel.setWrapText(true);
@@ -162,9 +127,9 @@ public class ImageDetailView extends BorderPane {
         VBox.setMargin(details, new Insets(8, 0, 0, 0));
         sidebar.getStyleClass().add("detail-sidebar");
         sidebar.setPadding(new Insets(28));
-        sidebar.setPrefWidth(340);
-        sidebar.setMinWidth(340);
-        sidebar.setMaxWidth(340);
+        sidebar.setPrefWidth(EditPanel.WIDTH);
+        sidebar.setMinWidth(EditPanel.WIDTH);
+        sidebar.setMaxWidth(EditPanel.WIDTH);
         tagsPane.setPrefWrapLength(280);
         // Scrolls so Notes stays reachable in a short window or under a long tag list.
         javafx.scene.control.ScrollPane sidebarScroll = new javafx.scene.control.ScrollPane(sidebar);
@@ -174,38 +139,16 @@ public class ImageDetailView extends BorderPane {
         sidebar.minHeightProperty().bind(sidebarScroll.heightProperty());
         tagPicker = new TagPicker(library, true);
         tagPicker.setOnChange(this::applyTags);
+        // A rename, merge or delete can change any image's tags, not just this one's.
+        tagPicker.enableTagMenu(new TagActions(library, () -> {
+            syncEditPanel(true);
+            onLibraryChanged.run();
+        }));
         playlists = new PlaylistChecklist(library, "In playlists");
         playlists.setOnChange(this::applyPlaylists);
-        // Tags over playlists, 2:1, like the import preview: tagging is most of the work.
-        // Same place and width as the info sidebar it stands in for, so the image doesn't jump.
-        GridPane editPanel = new GridPane();
-        editPanel.getStyleClass().add("detail-sidebar");
-        editPanel.setPadding(new Insets(20));
-        editPanel.setVgap(16);
-        editPanel.setPrefWidth(340);
-        editPanel.setMinWidth(340);
-        editPanel.setMaxWidth(340);
-        editPanel.addColumn(0, tagPicker, playlists);
-        RowConstraints tagsRow = new RowConstraints();
-        tagsRow.setPercentHeight(200.0 / 3);
-        RowConstraints playlistsRow = new RowConstraints();
-        playlistsRow.setPercentHeight(100.0 / 3);
-        editPanel.getRowConstraints().addAll(tagsRow, playlistsRow);
-        ColumnConstraints column = new ColumnConstraints();
-        column.setPercentWidth(100);
-        editPanel.getColumnConstraints().add(column);
+        EditPanel editPanel = new EditPanel(tagPicker, playlists);
 
-        Runnable layoutPanels = () -> {
-            boolean hidden = controlsHidden.get();
-            setTop(hidden ? null : topBar);
-            setRight(hidden ? null : editMode.get() ? editPanel : sidebarScroll);
-            viewer.setInset(hidden ? 0 : 24);
-        };
-        layoutPanels.run();
-        controlsHidden.addListener((o, was, hidden) -> {
-            layoutPanels.run();
-            if (hidden) flashControlsHint();
-        });
+        setSidePanel(sidebarScroll);
         editMode.addListener((o, was, on) -> {
             // Leaving the info sidebar commits Credit/Notes, as moving to another image would.
             if (on) {
@@ -215,69 +158,13 @@ public class ImageDetailView extends BorderPane {
                 render();
             }
             modeSwitch.setValue(on);
-            layoutPanels.run();
+            setSidePanel(on ? editPanel : sidebarScroll);
         });
-
-        // Full screen belongs to the viewer: leaving the scene (navigating to another view)
-        // also leaves it, since the hidden sidebar would otherwise strand the user.
-        // Shortcuts are a filter on the whole scene, not this node: hiding the controls removes
-        // the focused toolbar button, and focus can land outside the viewer (the nav sidebar),
-        // where a node filter would never see Z again. handleKey ignores keys while hidden.
-        sceneProperty().addListener((o, oldScene, newScene) -> {
-            if (oldScene != null) {
-                oldScene.removeEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, keyFilter);
-                if (oldScene.getWindow() instanceof Stage window) {
-                    window.fullScreenProperty().removeListener(fullScreenListener);
-                    window.setFullScreen(false);
-                }
-            }
-            if (newScene != null) {
-                newScene.addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, keyFilter);
-                if (newScene.getWindow() instanceof Stage window) {
-                    window.fullScreenProperty().addListener(fullScreenListener);
-                    syncFullScreenButton(window.isFullScreen());
-                }
-            }
-        });
-
-        setFocusTraversable(true);
     }
 
-    /** A filter so the shortcuts beat a focused toolbar button (which would take arrows for focus traversal). */
-    private void handleKey(javafx.scene.input.KeyEvent e) {
-        if (!isVisible()) return;
-        // Typing in Credit/Notes must not trigger shortcuts; Esc just leaves the field.
-        if (e.getTarget() instanceof TextInputControl) {
-            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
-                requestFocus();
-                e.consume();
-            }
-            return;
-        }
-        if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) {
-            if (viewer.closePanel()) {
-                // closed the adjustments panel
-            } else if (controlsHidden.get()) {
-                controlsHidden.set(false);
-            } else if (isFullScreen()) {
-                setFullScreen(false);
-            } else {
-                close();
-            }
-            e.consume();
-            return;
-        }
-        if (e.getCode() == javafx.scene.input.KeyCode.F11) {
-            setFullScreen(!isFullScreen());
-            e.consume();
-            return;
-        }
-        Shortcuts.Action action = Shortcuts.match(e, Shortcuts.Scope.VIEWER);
-        if (action == null) return;
+    @Override
+    protected boolean handleAction(Shortcuts.Action action) {
         switch (action) {
-            case PREVIOUS -> move(-1);
-            case NEXT -> move(1);
-            case HIDE_CONTROLS -> controlsHidden.set(!controlsHidden.get());
             case FAVORITE -> toggleFavorite();
             case TAG -> {
                 // The tree is already docked in edit mode: jump into it rather than opening a dialog over it.
@@ -286,15 +173,10 @@ public class ImageDetailView extends BorderPane {
             }
             case EDIT_MODE -> editMode.set(!editMode.get());
             default -> {
-                if (!viewer.handle(action)) return;
+                return false;
             }
         }
-        // TAG's picker opens with its own sound, and editTags only returns once it's closed: a tap
-        // played here would land on top of the click of whatever button closed it.
-        if (action != Shortcuts.Action.FAVORITE && action != Shortcuts.Action.ADJUST && action != Shortcuts.Action.TAG) {
-            com.gesturtle.ui.common.Sounds.playUnlessSuperseded(com.gesturtle.ui.common.Sounds.Sound.KEY);
-        }
-        e.consume();
+        return true;
     }
 
     public void open(List<ImageRecord> context, int startIndex) {
@@ -305,57 +187,16 @@ public class ImageDetailView extends BorderPane {
         // Tags and playlists may have been added or renamed elsewhere since the last opening.
         if (editMode.get()) syncEditPanel(true);
         render();
-        Motion.zoomIn(this, 0.97, 200);
-        com.gesturtle.ui.common.Sounds.play(com.gesturtle.ui.common.Sounds.Sound.OPEN);
-        requestFocus();
+        enter();
     }
 
-    /** Shrinks and fades out, then lets the owner hide it. Full screen and hidden controls end with the viewer. */
-    private void close() {
+    @Override
+    protected void beforeClose() {
         saveDetails();
-        leaveStudyMode();
-        com.gesturtle.ui.common.Sounds.play(com.gesturtle.ui.common.Sounds.Sound.CLOSE);
-        Motion.zoomOut(this, 0.97, 150, onClose);
     }
 
-    private void leaveStudyMode() {
-        setFullScreen(false);
-        controlsHidden.set(false);
-    }
-
-    private boolean isFullScreen() {
-        return getScene() != null && getScene().getWindow() instanceof Stage stage && stage.isFullScreen();
-    }
-
-    private void setFullScreen(boolean on) {
-        if (getScene() != null && getScene().getWindow() instanceof Stage stage) stage.setFullScreen(on);
-    }
-
-    private void syncFullScreenButton(boolean on) {
-        fullScreenButton.setSelected(on);
-        AppButton.withIcon(fullScreenButton, on ? "fullscreen-exit" : "fullscreen");
-        fullScreenButton.setTooltip(new javafx.scene.control.Tooltip(on ? "Leave full screen (F11)" : "Full screen (F11)"));
-    }
-
-    /** Tells the user once, briefly, how to get the controls back. */
-    private void flashControlsHint() {
-        flashHint("Press Z to show controls");
-    }
-
-    /** Shows a short message over the image, then fades it; a newer message replaces one still showing. */
-    private void flashHint(String text) {
-        if (hintAnimation != null) hintAnimation.stop();
-        controlsHint.setText(text);
-        javafx.animation.FadeTransition in = new javafx.animation.FadeTransition(Duration.millis(200), controlsHint);
-        in.setToValue(1);
-        javafx.animation.FadeTransition out = new javafx.animation.FadeTransition(Duration.millis(600), controlsHint);
-        out.setDelay(Duration.seconds(2));
-        out.setToValue(0);
-        hintAnimation = new javafx.animation.SequentialTransition(in, out);
-        hintAnimation.play();
-    }
-
-    private void move(int delta) {
+    @Override
+    protected void move(int delta) {
         int newIndex = index + delta;
         if (newIndex < 0 || newIndex >= context.size()) return;
         saveDetails();
@@ -466,10 +307,13 @@ public class ImageDetailView extends BorderPane {
      * Ticks the edit panel to match the current image. reloadLists rebuilds
      * the tag tree and playlist list first, to pick up ones made elsewhere;
      * stepping between images skips that, so the tree keeps its scroll and
-     * collapsed state.
+     * collapsed state. The record is read afresh, since the copy in context
+     * dates from when the viewer opened and a tag merge or delete since then
+     * may have changed its tags.
      */
     private void syncEditPanel(boolean reloadLists) {
         if (context == null) return;
+        library.images().findById(context.get(index).id()).ifPresent(updated -> context.set(index, updated));
         ImageRecord record = context.get(index);
         if (reloadLists) {
             tagPicker.refresh();
@@ -524,8 +368,7 @@ public class ImageDetailView extends BorderPane {
         if (!Dialogs.tryRun(() -> com.gesturtle.library.ImageTrash.delete(library, record), "Could not delete image")) return;
         com.gesturtle.ui.common.Sounds.play(com.gesturtle.ui.common.Sounds.Sound.DELETE);
         onLibraryChanged.run();
-        leaveStudyMode();
-        onClose.run();
+        dismiss();
     }
 
     private static String humanSize(long bytes) {

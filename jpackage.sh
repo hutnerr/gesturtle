@@ -38,7 +38,7 @@ fi
 
 VERSION=$(grep -m1 '<version>' pom.xml | sed -E 's/.*<version>([^<]*)<\/version>.*/\1/' | sed -E 's/-.*//')
 # jpackage wants plain numbers, so a "-beta" or "-SNAPSHOT" suffix is dropped.
-[ -z "$VERSION" ] && VERSION="1.0.0"
+[ -z "$VERSION" ] && VERSION="1.1.0"
 
 # Each OS wants its own icon format; all three come from packaging/MakeIcons.java.
 case "$(uname -s)" in

@@ -105,10 +105,11 @@ public class Shell extends BorderPane {
     /**
      * A Page's background and contour lines look the same on every screen, so only its header and
      * body animate in; fading the whole page made the background blink on every switch. Practice
-     * wraps its page in a container, hence the look one level down.
+     * wraps its page in a container, and the Gallery, Playlists and Import stack theirs under a hidden image
+     * viewer, hence the look one level down at the first child.
      */
     private static void enter(Region view) {
-        Node inner = view.getChildrenUnmodifiable().size() == 1 ? view.getChildrenUnmodifiable().get(0) : null;
+        Node inner = view.getChildrenUnmodifiable().isEmpty() ? null : view.getChildrenUnmodifiable().get(0);
         Page page = view instanceof Page p ? p : inner instanceof Page p ? p : null;
         if (page != null) {
             for (Node part : new Node[] {page.getTop(), page.getCenter(), page.getBottom()}) {
